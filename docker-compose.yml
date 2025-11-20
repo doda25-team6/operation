@@ -1,13 +1,17 @@
 services:
 
   model-service:
-    build: ../model-service
+    build: 
+      context: ..
+      dockerfile: model-service/Dockerfile
     container_name: model-service
     ports:
       - "8081:8081"
 
   app:
-    build: ../app
+    build:
+      context: ..
+      dockerfile: app/Dockerfile
     container_name: app
     ports:
       - "8080:8080"
