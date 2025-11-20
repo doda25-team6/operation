@@ -71,8 +71,16 @@ To satisfy F6, environment variables were added into the Dockerfiles for `model-
 
 In the `model-service` repository, a dedicated workflow was created, which can be run on demand. 
 
-The workflow is triggered by navigating to the Actions tab in the GitHub web UI, clicking "On-demand training, versioning, and release of the model" on the left, and pressing "Run workflow." You will be asked for a release tag, which represents a semantic version, e.g., v0.0.1. 
+The workflow is triggered by navigating to the Actions tab in the GitHub web UI, clicking "On-demand training, versioning, and release of the model" on the left, and pressing "Run workflow." You will be asked for a release tag, which represents a semantic version, e.g., v0.0.1. Note that existing tags cause the workflow to fail its run.
 
 Afterward, the workflow will run and create a release at https://github.com/doda25-team6/model-service/releases. The release contains corresponding versioned model files, which can be downloaded without authentication.
 
 The workflow consists of two jobs, namely `train-and-version` and `release`. This design decision was made so that training and versioning could be performed inside the same Docker Python container, which avoids user permission issues. Releasing the model files is not done inside this container, but in the GitHub runner. That is why, two jobs are used, where the output files from the first job are downloaded to the second (dependent) job.
+
+## F10
+
+A few changes have been made to remove the hard-coded use of the model by the model-service container. Firstly, the Docker Compose file in `operation` was extended with an environement variable and a volume mount. Secondly, the Dockerfile and `serve_model.py` were changed in `model-service`.
+
+The Dockerfile does not have an environment variable for the model file location. This is defined in the Docker Compose file only, to simplify the configuration.
+
+In `serve_model.py`, logic has been added to check whether the model can be loaded in the container, or if it has to be downloaded from the GitHub releases page in the `model-service` repository. It has been chosen to use a global variable `clf` in `serve_model.py`, instead of using Flask's app config, as it's expected to work well given the relatively small scale of the project.
