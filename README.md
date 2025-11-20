@@ -53,3 +53,16 @@ App: `docker pull ghcr.io/doda25-team6/app:v0.1.1`
 To verify that the published images run correctly, they were executed locally:
 Model Service: `docker run -p 8081:8081 ghcr.io/doda25-team6/model-service:v0.1.1`
 App: `docker run -p 8080:8080 ghcr.io/doda25-team6/app:v0.1.1`
+
+# F6
+
+To satisfy F6, environment variables were added into the Dockerfiles for `model-service` and `app`. Below are given the environment variables that can be modified in `operation/docker-compose.yml` or when running the components individually:
+
+## Environment variables in `app`
+
+- `SERVER_PORT`: The port on which the app runs within the container (default: 8080)
+- `MODEL_HOST`: The URL on which model service runs for the app to use, relative to the app within the container (default: http://model-service:8081)
+
+## Environment variable in `model-service`
+
+- `SERVER_PORT`: The port on which the service runs within the container (default: 8081)
