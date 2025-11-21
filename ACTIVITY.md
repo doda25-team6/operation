@@ -31,6 +31,27 @@ feat(F-1): Integrate lib-version for version monitoring
 </details>
 <br>
 
+ <details><summary> Sahana </summary>
+<p>
+
+**A1**:
+
+https://github.com/doda25-team6/operation/pull/1
+
+Initial folder structure for operations
+
+https://github.com/doda25-team6/app/pull/1
+
+Added the Dockerfile in app for containerizing as well as created a release-image.yml for the F4 requirement.
+
+https://github.com/doda25-team6/model-service/pull/1
+
+Added the Dockerfile in model-service and created the release-image.yml for F4
+
+</p>
+</details>
+<br>
+
 -----
 
 ### WEEK 2 (17/11 - 23/11)
@@ -52,6 +73,27 @@ This fixes paths in Dockerfile and the ML model serving API that was failing wit
 https://github.com/doda25-team6/operation/pull/5
 
 This resolves the docker compose up --build failures by ensuring proper build context access for multi-stage containerization.
+
+</p>
+</details>
+<br>
+
+ <details><summary> Sahana </summary>
+<p>
+
+**A1**:
+
+https://github.com/doda25-team6/operation/pull/2
+
+Docker compose yml file updated to run both containers from operation
+
+https://github.com/doda25-team6/operation/pull/4
+
+Updated the operation README file
+
+https://github.com/doda25-team6/model-service/pull/6
+
+updated the Docker file to copy the output folder
 
 </p>
 </details>
