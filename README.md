@@ -1,3 +1,60 @@
+# SMS Spam Detection System - Implementation Overview
+
+## Repository Links (Tag: a1)
+- **[app](https://github.com/doda25-team6/app/tree/a1)** - Spring Boot frontend and API gateway
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a1)** - Flask ML backend with scikit-learn
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a1)** - Version-aware Maven library
+- **[operation](https://github.com/doda25-team6/operation/tree/a1)** - Docker Compose orchestration (this repository)
+
+## Quick Start
+```bash
+git clone https://github.com/doda25-team6/app.git
+git clone https://github.com/doda25-team6/model-service.git
+git clone https://github.com/doda25-team6/lib-version.git
+git clone https://github.com/doda25-team6/operation.git
+cd operation
+git checkout a1
+docker compose up --build
+```
+
+Access the application at http://localhost:8080/sms/
+and the model-service API at http://localhost:8081/
+
+---
+
+## Feature Implementation Details
+
+## F1: Version-aware Library
+
+A version-aware Maven library `lib-version` has been created in the [lib-version repository](https://github.com/doda25-team6/lib-version/tree/a1). This library contains a `VersionUtil` class that provides version information parsed from a `version.properties` resource file included in the package.
+
+### Implementation Details
+- **Version Storage**: Version information stored in `src/main/resources/version.properties`
+- **Integration**: The `app` service depends on this library and uses `VersionUtil` during startup
+- **Usage**: Version information is logged when the application starts, providing runtime version awareness
+
+## F2: Library Release
+
+The `lib-version` library has automated release workflows implemented via GitHub Actions. The library is automatically packaged, versioned, and released to the GitHub Package Registry for Maven.
+
+### Workflow Details
+- **Automation**: GitHub Actions workflow in `.github/workflows/release.yml`
+- **Trigger**: Git version tags (e.g., `v1.0.0`) trigger the release workflow
+- **Registry**: Published to GitHub Package Registry for Maven
+- **Versioning**: Automatic version determination from git tags
+- **Packaging**: Maven packaging with proper dependency management
+
+### Usage
+The released library can be consumed by adding the GitHub Package Registry as a Maven repository and including the dependency:
+
+```xml
+<dependency>
+    <groupId>team6</groupId>
+    <artifactId>lib-version</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## F3
 
 Navigate to `operation` and start up the containers for model-service and app by running the following command:
