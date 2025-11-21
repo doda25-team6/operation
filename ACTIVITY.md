@@ -26,7 +26,6 @@ https://github.com/doda25-team6/app/pull/2
 
 feat(F-1): Integrate lib-version for version monitoring 
 
-
 </p>
 </details>
 <br>
@@ -52,6 +51,16 @@ Added the Dockerfile in model-service and created the release-image.yml for F4
 </details>
 <br>
 
+ <details><summary> Levi </summary>
+<p>
+
+**A1**:
+Created a SCRUM board for the project and linked all issues/PRs to it: 
+https://github.com/orgs/doda25-team6/projects/1
+
+</p>
+</details>
+<br>
 -----
 
 ### WEEK 2 (17/11 - 23/11)
@@ -98,6 +107,17 @@ Updated the operation README file
 https://github.com/doda25-team6/model-service/pull/6
 
 updated the Docker file to copy the output folder
+
+</p>
+</details>
+<br>
+
+ <details><summary> Levi </summary>
+<p>
+
+**A1**:
+Added a feature to automatically update versions after a new commit. Changed the xml and yml files and added a small shell script that can be run to test and update the project version.
+https://github.com/doda25-team6/lib-version/pull/5
 
 </p>
 </details>
