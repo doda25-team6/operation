@@ -74,6 +74,10 @@ https://github.com/doda25-team6/operation/pull/5
 
 This resolves the docker compose up --build failures by ensuring proper build context access for multi-stage containerization.
 
+https://github.com/doda25-team6/operation/pull/8
+
+Added F1 and F2 features in readme and project overview with tag a1 links for peer review.
+
 </p>
 </details>
 <br>
