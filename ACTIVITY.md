@@ -61,6 +61,19 @@ https://github.com/orgs/doda25-team6/projects/1
 </p>
 </details>
 <br>
+
+<br> 
+ <details><summary> Anhar </summary>
+<p>
+
+**A1**:
+
+Apart from researching GitHub Actions workflows, Docker, etc., no work was performed yet on F9 and F10.
+
+</p>
+</details>
+<br>
+
 -----
 
 ### WEEK 2 (17/11 - 23/11)
@@ -118,6 +131,20 @@ updated the Docker file to copy the output folder
 **A1**:
 Added a feature to automatically update versions after a new commit. Changed the xml and yml files and added a small shell script that can be run to test and update the project version.
 https://github.com/doda25-team6/lib-version/pull/5
+
+</p>
+</details>
+<br>
+
+<br> 
+ <details><summary> Anhar </summary>
+<p>
+
+**A1**:
+
+I spent most of this week working on F9. A (manually triggerable) workflow was created to train, version, and release model files. See https://github.com/doda25-team6/model-service/pull/9.
+
+Some work has gone into an attempt to make F10 work. The Docker Compose file (operation repo), the Dockerfile (model-service repo), and serve_model.py file (model-service) were modified. See https://github.com/doda25-team6/model-service/pull/10 and https://github.com/doda25-team6/operation/pull/7.
 
 </p>
 </details>
