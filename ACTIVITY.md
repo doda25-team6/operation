@@ -74,6 +74,18 @@ Apart from researching GitHub Actions workflows, Docker, etc., no work was perfo
 </details>
 <br>
 
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A1**:
+
+Mostly research and in-class assignments to understand Docker, Actions and workflows. Not yet started on F7 and F8.
+
+</p>
+</details>
+<br>
+
 -----
 
 ### WEEK 2 (17/11 - 23/11)
@@ -145,6 +157,22 @@ https://github.com/doda25-team6/lib-version/pull/5
 I spent most of this week working on F9. A (manually triggerable) workflow was created to train, version, and release model files. See https://github.com/doda25-team6/model-service/pull/9.
 
 Some work has gone into an attempt to make F10 work. The Docker Compose file (operation repo), the Dockerfile (model-service repo), and serve_model.py file (model-service) were modified. See https://github.com/doda25-team6/model-service/pull/10 and https://github.com/doda25-team6/operation/pull/7.
+
+</p>
+</details>
+<br>
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A1**:
+
+- F8, Created the workflow for automated container releases for app repository. Workflow gets the version from pom.xml, compares that with the given tag and if they are equal, creates a container and releases it. Tested it out by giving differing versions and tags: https://github.com/doda25-team6/app/pull/18
+- Implemented the use of lib version from github inside the app repository. Updated dockerfile of app to mount secrets and included repository in pom.xml: https://github.com/doda25-team6/app/pull/17
+- Updated docker-compose so that env is used: https://github.com/doda25-team6/operation/pull/10
+Next week, planning to fix the exposure of backend ports.
+- Did some tiny changes on model-service dockerfile: https://github.com/doda25-team6/model-service/pull/9/commits
 
 </p>
 </details>
