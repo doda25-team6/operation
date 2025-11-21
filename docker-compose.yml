@@ -7,6 +7,17 @@ services:
     container_name: model-service
     ports:
       - "8081:8081"
+    environment:
+      MODEL_DIR: /app/output
+      
+      # Can optionally put DOWNLOAD_URL here.
+      # Then remove hard-coded URL from serve_model.py and load the env var.
+      # DOWNLOAD_URL: ...
+
+    # Without this, the model-service would always download 
+    # since output would be empty.
+    volumes:
+      - ./output:/app/output
 
   app:
     build:
