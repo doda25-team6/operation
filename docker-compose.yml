@@ -40,9 +40,3 @@ services:
     environment:
       MODEL_HOST: "${MODEL_HOST:-http://model-service:8081}"
     
-#     secrets:
-#       - GITHUB_TOKEN
-
-# secrets:
-#   GITHUB_TOKEN:
-#     file: .env

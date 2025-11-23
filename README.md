@@ -57,36 +57,15 @@ The released library can be consumed by adding the GitHub Package Registry as a 
 
 ## F3
 
-Navigate to `operation` and start up the containers for model-service and app by running the following command:
-`docker compose up --build`
+Navigate to `operation` and start up the containers for model-service and app by running the following commands:
+`docker compose build`
+`docker compose up`
 (Ensure Docker is up and running)
 
-The services can be accessed on:
+The service can be accessed on:
 http://localhost:8080
-POST → http://localhost:8081/predict (API endpoint)
-
-To test whether the backend is running, run:
-```
-curl -X POST http://localhost:8081/predict \ 
-
-     -H "Content-Type: application/json" \ 
-
-     -d '{"sms":"hello world"}' 
-```
 
 To stop the containers: `docker compose down`
-
-To run the containers individually:
-
-Navigate to model-service, run the following commands: 
-`docker build -t model-service-test .`
-`docker run -p 8081:8081 model-service-test` 
-
-Navigate to app, run the following commands: 
-`docker build -t app-service-test .`
-`docker run -p 8080:8080 app-service-test`
-
-or run the commands provided in the README file within the app repository.
 
 ## F4
 
