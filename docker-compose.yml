@@ -2,12 +2,16 @@ services:
 
   model-service:
     build: 
-      context: ..
-      dockerfile: model-service/Dockerfile
+      context: ../model-service
+      dockerfile: Dockerfile
+      args:
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: model-service
-    ports:
-      - "8081:8081"
+    expose:
+      - "${SERVER_PORT:-8081}"
     environment:
+      SERVER_PORT: "${SERVER_PORT:-8081}"
       MODEL_DIR: /app/output
       
       # Can optionally put DOWNLOAD_URL here.
@@ -17,20 +21,28 @@ services:
     # Without this, the model-service would always download 
     # since output would be empty.
     volumes:
-      - ./output:/app/output
+      - ../model-service/output:/app/output
+
 
   app:
     build:
-      context: ..
-      dockerfile: app/Dockerfile
+      context: ../app
+      dockerfile: Dockerfile
       args:
         # F2: GitHub Package Registry authentication for lib-version
         GITHUB_USERNAME: ${GITHUB_USERNAME}
         GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: app
     ports:
-      - "8080:8080"
+      - "${APP_HOST_PORT:-8080}:8080"
     depends_on:
       - model-service
     environment:
-      MODEL_HOST: http://model-service:8081
+      MODEL_HOST: "${MODEL_HOST:-http://model-service:8081}"
+    
+#     secrets:
+#       - GITHUB_TOKEN
+
+# secrets:
+#   GITHUB_TOKEN:
+#     file: .env
