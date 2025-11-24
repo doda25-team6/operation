@@ -10,6 +10,10 @@ BASE_BOX = "bento/ubuntu-24.04"
 # Network base (adjust as you like, just stay in a private range)
 NETWORK_BASE = "192.168.56"
 
+# Should be fixed, assignment 2 requires it
+CTRL_IP_SUFFIX = 100
+WORKER_IP_START = 101
+
 Vagrant.configure("2") do |config|
   config.vm.box = BASE_BOX
 
@@ -19,7 +23,8 @@ Vagrant.configure("2") do |config|
   # Controller node
   config.vm.define "ctrl" do |ctrl|
     ctrl.vm.hostname = "ctrl"
-    ctrl.vm.network "private_network", ip: "#{NETWORK_BASE}.10", node.vm.network "private_network", ip: "#{NETWORK_BASE}.2#{i}", virtualbox__intnet: false, auto_config: true
+
+    ctrl.vm.network "private_network", ip: "#{NETWORK_BASE}.#{CTRL_IP_SUFFIX}"
 
     ctrl.vm.provider "virtualbox" do |vb|
       vb.name   = "k8s-ctrl"
@@ -32,8 +37,11 @@ Vagrant.configure("2") do |config|
   (1..WORKER_COUNT).each do |i|
     config.vm.define "node-#{i}" do |node|
       node.vm.hostname = "node-#{i}"
-      # simple IP assignment, e.g. 192.168.56.20, .21, ...
-      node.vm.network "private_network", ip: "#{NETWORK_BASE}.2#{i}"
+      
+      # Fixed IP of worker nodes      
+      worker_ip_suffix = WORKER_IP_START + (i - 1) 
+
+      node.vm.network "private_network", ip: "#{NETWORK_BASE}.#{worker_ip_suffix}"
 
       node.vm.provider "virtualbox" do |vb|
         vb.name   = "k8s-node-#{i}"
