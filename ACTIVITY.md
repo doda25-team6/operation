@@ -86,6 +86,27 @@ Mostly research and in-class assignments to understand Docker, Actions and workf
 </details>
 <br>
 
+
+<br>
+    <details><summary> Viktor </summary>
+<p>
+
+**A1**:
+
+Created GitHub organisation and respositories for the project.
+
+https://github.com/doda25-team6/model-service/pull/5
+
+https://github.com/doda25-team6/app/pull/14
+
+Made the containers for model-service and app flexible by adding ENV variables for ports and service addresses. (F6)
+
+F5 was already done by Sahana unintentionally.
+
+</p>
+</details>
+<br>
+
 -----
 
 ### WEEK 2 (17/11 - 23/11)
@@ -173,6 +194,21 @@ Some work has gone into an attempt to make F10 work. The Docker Compose file (op
 - Updated docker-compose so that env is used: https://github.com/doda25-team6/operation/pull/10
 Next week, planning to fix the exposure of backend ports.
 - Did some tiny changes on model-service dockerfile: https://github.com/doda25-team6/model-service/pull/9/commits
+
+</p>
+</details>
+<br>
+
+
+<br>
+    <details><summary> Viktor </summary>
+<p>
+
+**A1**:
+
+https://github.com/doda25-team6/operation/commit/c3d16de1496f272ef417b6ee007cfe9460d0d5ac
+
+Added documentation for the ENV variables used in the Dockerfiles to the operation README.md
 
 </p>
 </details>
