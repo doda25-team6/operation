@@ -9,3 +9,25 @@
     - name: Placeholder task
       ansible.builtin.debug:
         msg: "General playbook running on {{ inventory_hostname }}"
+
+    - name: Ensure .ssh directory exists for vagrant
+      file:
+        path: /home/vagrant/.ssh
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0700'
+
+    - name: Debug show key file that will be installed
+      ansible.builtin.debug:
+        msg: "Installing key from file: {{ item }} — content: {{ lookup('file', item) }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/ssh-keys/*.pub"
+
+    - name: Install team SSH keys for vagrant user
+      ansible.posix.authorized_key:
+        user: vagrant
+        state: present
+        key: "{{ lookup('file', item) }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/ssh-keys/*.pub"
