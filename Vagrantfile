@@ -4,6 +4,14 @@
 # Configurable number of worker nodes
 WORKER_COUNT = ENV.fetch("WORKER_COUNT", 2).to_i
 
+# Configurable controller
+CTRL_CPUS   = ENV.fetch("CTRL_CPUS",   1).to_i
+CTRL_MEMORY = ENV.fetch("CTRL_MEMORY", 4096).to_i  # MB
+
+# Configurable worker
+WORKER_CPUS   = ENV.fetch("WORKER_CPUS",   2).to_i
+WORKER_MEMORY = ENV.fetch("WORKER_MEMORY", 6144).to_i
+
 # Base box
 BASE_BOX = "bento/ubuntu-24.04"
 
@@ -28,8 +36,8 @@ Vagrant.configure("2") do |config|
 
     ctrl.vm.provider "virtualbox" do |vb|
       vb.name   = "k8s-ctrl"
-      vb.cpus   = 1
-      vb.memory = 4096   # 4 GB
+      vb.cpus   = CTRL_CPUS
+      vb.memory = CTRL_MEMORY   # 4 GB
     end
   end
 
@@ -45,9 +53,16 @@ Vagrant.configure("2") do |config|
 
       node.vm.provider "virtualbox" do |vb|
         vb.name   = "k8s-node-#{i}"
-        vb.cpus   = 2
-        vb.memory = 6144  # 6 GB
+        vb.cpus   = WORKER_CPUS
+        vb.memory = WORKER_MEMORY  
       end
     end
   end
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.compatibility_mode = "2.0"
+    ansible.playbook = "ansible/site.yml"
+
+  end
+
 end

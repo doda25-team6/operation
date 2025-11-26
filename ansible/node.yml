@@ -1,0 +1,11 @@
+# ansible/ctrl.yml
+---
+- name: Controller-specific configuration
+  hosts: "node-*"
+  become: true
+
+  tasks:
+    # TODO: add tasks for other parts
+    - name: Placeholder task (worker node)
+      ansible.builtin.debug:
+        msg: "worker node playbook running on {{ inventory_hostname }}"
