@@ -31,3 +31,16 @@
         key: "{{ lookup('file', item) }}"
       with_fileglob:
         - "{{ playbook_dir }}/ssh-keys/*.pub"
+
+    # Step 5
+    - name: Turn off Swap
+      ansible.builtin.shell: swapoff -a
+
+    # The regex ensures the line is not a comment, but a six-field swap entry
+    # \w+ is used since the second field only has word characters
+    - name: Remove swap entry to prevent a re-mount on the next boot
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        state: absent
+        regexp: '^\s*[^#].+\s*\w+\s*swap\s*.+\s*.+\s.+$'
+
