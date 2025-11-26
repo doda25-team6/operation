@@ -76,7 +76,7 @@
     # Step 8
     - name: Manage /etc/hosts
       ansible.builtin.template:
-        src: {{ playbook_dir }}/templates/hosts.j2
+        src: "{{ playbook_dir }}/templates/hosts.j2"
         dest: /etc/hosts
         owner: root
         group: root
