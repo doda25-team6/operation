@@ -81,4 +81,90 @@
         owner: root
         group: root
         mode: '0644'
+    
+    # Step 9
+    - name: Add Kubernetes apt repository signing key
+      ansible.builtin.apt_key:
+        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        state: present
+
+    - name: Add Kubernetes apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
+        state: present
+        filename: kubernetes
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+    
+    # Step 10
+    - name: Install containerd
+      ansible.builtin.apt:
+        name: containerd
+        state: present
+        update_cache: true
+
+    - name: Install Kubernetes tools (kubelet, kubeadm, kubectl)
+      ansible.builtin.apt:
+        name:
+          - kubelet=1.32.4-1.1
+          - kubeadm=1.32.4-1.1
+          - kubectl=1.32.4-1.1
+        state: present
+        update_cache: true
+
+    - name: Hold Kubernetes packages
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    # Step 11
+    - name: Ensure containerd config directory exists
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Generate default containerd config
+      ansible.builtin.command: containerd config default
+      register: containerd_default_config
+
+    - name: Write containerd config to /etc/containerd/config.toml
+      ansible.builtin.copy:
+        dest: /etc/containerd/config.toml
+        content: "{{ containerd_default_config.stdout }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable settings in containerd config
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: '{{ item.regexp }}'
+        replace: '{{ item.replace }}'
+      loop:
+        - { regexp: 'disable_apparmor = false', replace: 'disable_apparmor = true' }
+        - { regexp: 'sandbox_image = ".*"', replace: 'sandbox_image = "registry.k8s.io/pause:3.10"' }
+        - { regexp: 'SystemdCgroup = false', replace: 'SystemdCgroup = true' }
+
+    - name: Restart containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+        enabled: true
+    
+    # Step 12
+    - name: Start kubelet service
+      ansible.builtin.service:
+        name: kubelet
+        state: started
+        enabled: true
+
 

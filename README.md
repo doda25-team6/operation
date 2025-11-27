@@ -18,7 +18,6 @@ docker compose up --build
 ```
 
 Access the application at http://localhost:8080/sms/
-and the model-service API at http://localhost:8081/
 
 ---
 
