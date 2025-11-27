@@ -31,3 +31,54 @@
         key: "{{ lookup('file', item) }}"
       with_fileglob:
         - "{{ playbook_dir }}/ssh-keys/*.pub"
+
+    # Step 5
+    - name: Turn off Swap
+      ansible.builtin.shell: swapoff -a
+
+    # The regex ensures the line is not a comment, but a six-field swap entry
+    # \w+ is used since the second field only has word characters
+    - name: Remove swap entry to prevent a re-mount on the next boot
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        state: absent
+        regexp: '^\s*[^#].+\s*\w+\s*swap\s*.+\s*.+\s.+$'
+
+    # Step 6
+    - name: Add overlay and br_netfilter modules to a new file
+      ansible.builtin.copy:
+        content: |
+          br_netfilter
+          overlay
+        dest: /etc/modules-load.d/k8s.conf # created if file not found
+        owner: root  # explicitly specified to help with idempotence 
+        group: root
+        mode: '0644' # written by root, read by everyone
+
+    - name: Persistently load br_netfilter in the running system
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
+        persistent: present
+
+    # Step 7
+    - name: Enable IPv4 forwarding
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_set: true # immediately apply to running system
+        state: present   # enables forwarding on every boot
+      loop:
+        - { name: net.ipv4.ip_forward, value: '1' }
+        - { name: net.bridge.bridge-nf-call-iptables, value: '1' }
+        - { name: net.bridge.bridge-nf-call-ip6tables, value: '1' }
+
+    # Step 8
+    - name: Manage /etc/hosts
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/hosts.j2"
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: '0644'
+
