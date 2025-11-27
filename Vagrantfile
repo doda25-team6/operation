@@ -62,7 +62,12 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.compatibility_mode = "2.0"
     ansible.playbook = "ansible/site.yml"
-
+    
+    # Pass IP addresses as extra_vars so the template can use them
+    ansible.extra_vars = {
+      "ctrl_ip" => "#{NETWORK_BASE}.#{CTRL_IP_SUFFIX}",
+      "worker_ips" => (1..WORKER_COUNT).map { |i| "#{NETWORK_BASE}.#{WORKER_IP_START + (i - 1)}" }
+    }
   end
 
 end
