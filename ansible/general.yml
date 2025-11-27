@@ -99,11 +99,15 @@
         update_cache: true
     
     # Step 10
-    - name: Install containerd
+    - name: Install containerd (from Ubuntu repo)
       ansible.builtin.apt:
         name: containerd
         state: present
-        update_cache: true
+
+    - name: Install runc (from Ubuntu repo)
+      ansible.builtin.apt:
+        name: runc
+        state: present
 
     - name: Install Kubernetes tools (kubelet, kubeadm, kubectl)
       ansible.builtin.apt:
