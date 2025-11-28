@@ -5,7 +5,24 @@
   become: true
 
   tasks:
-    # TODO: add tasks for other parts
-    - name: Placeholder task (worker node)
-      ansible.builtin.debug:
-        msg: "worker node playbook running on {{ inventory_hostname }}"
+    # Only generate join token on ctrl
+    - name: Generate join command on controller
+      ansible.builtin.command:
+        cmd: kubeadm token create --print-join-command
+      delegate_to: ctrl
+      run_once: true
+      register: join_cmd_result
+
+    # Check if kubelet.conf exists
+    - name: Check if kubelet.conf exists
+      ansible.builtin.stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    # Only join worker nodes, and only if not already joined
+    - name: Join this node to the Kubernetes cluster
+      ansible.builtin.shell: "{{ join_cmd_result.stdout }}"
+      args:
+        executable: /bin/bash
+      when:
+        - not kubelet_conf.stat.exists
