@@ -64,21 +64,25 @@
         KUBECONFIG: /etc/kubernetes/admin.conf
 
     # Step 16
+    - name: Set architecture variable
+      set_fact:
+        helm_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+
     - name: Download Helm binary
       ansible.builtin.get_url:
-        url: https://get.helm.sh/helm-v3.16.4-linux-arm64.tar.gz
-        dest: /tmp/helm-v3.16.4-linux-arm64.tar.gz
+        url: https://get.helm.sh/helm-v3.16.4-linux-{{ helm_arch }}.tar.gz
+        dest: /tmp/helm-v3.16.4-linux-{{ helm_arch }}.tar.gz
         mode: '0644'
 
     - name: Extract Helm binary
       ansible.builtin.unarchive:
-        src: /tmp/helm-v3.16.4-linux-arm64.tar.gz
+        src: /tmp/helm-v3.16.4-linux-{{ helm_arch }}.tar.gz
         dest: /tmp
         remote_src: true
 
     - name: Install Helm binary to system PATH
       ansible.builtin.copy:
-        src: /tmp/linux-arm64/helm
+        src: /tmp/linux-{{ helm_arch }}/helm
         dest: /usr/local/bin/helm
         mode: '0755'
         owner: root
@@ -88,20 +92,14 @@
     # Step 17
     # Added because the helm-diff plugin gets partially installed in step 16 
     # and needs to be reinstalled
-    - name: Remove existing helm-diff plugin if corrupted
-      ansible.builtin.command:
-        cmd: helm plugin uninstall diff
-      become: false
-      become_user: vagrant
-      environment:
-        HOME: /home/vagrant
-      register: helm_diff_uninstall
-      failed_when: false
-      changed_when: helm_diff_uninstall.rc == 0
+    - name: Remove existing helm-diff plugin directory if corrupted
+      ansible.builtin.file:
+        path: /home/vagrant/.local/share/helm/plugins/helm-diff
+        state: absent
 
     - name: Install helm-diff plugin
       ansible.builtin.command:
-        cmd: helm plugin install https://github.com/databus23/helm-diff
+        cmd: helm plugin install https://github.com/databus23/helm-diff --version v3.12.5
       become: false
       become_user: vagrant
       environment:
