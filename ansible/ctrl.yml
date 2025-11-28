@@ -5,7 +5,107 @@
   become: true
 
   tasks:
-    # TODO: add tasks for other parts
-    - name: Placeholder task (controller)
-      ansible.builtin.debug:
-        msg: "Controller playbook running on {{ inventory_hostname }}"
+    # Step 13
+    - name: Check if Kubernetes admin config exists
+      ansible.builtin.stat:
+        path: /etc/kubernetes/admin.conf
+      register: k8s_admin_conf
+
+    - name: Initialize Kubernetes cluster with kubeadm
+      ansible.builtin.command:
+        # --ignore-preflight-errors=NumCPU to bypass the CPU requirement check
+        cmd: kubeadm init --apiserver-advertise-address=192.168.56.100 --node-name=ctrl --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU
+      register: kubeadm_init_result
+      when: not k8s_admin_conf.stat.exists
+
+    # Step 14
+    - name: Create .kube directory for vagrant user
+      ansible.builtin.file:
+        path: /home/vagrant/.kube
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0755'
+
+    - name: Copy admin.conf to vagrant user's .kube directory
+      ansible.builtin.copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/vagrant/.kube/config
+        owner: vagrant
+        group: vagrant
+        mode: '0600'
+        remote_src: true
+
+    - name: Copy admin.conf to host (outside VMs)
+      ansible.builtin.fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: "{{ playbook_dir }}/../admin.conf"
+        flat: true
+        mode: '0600'
+      run_once: true
+
+    # Step 15
+    - name: Download Flannel manifest
+      ansible.builtin.get_url:
+        url: https://github.com/flannel-io/flannel/releases/download/v0.26.7/kube-flannel.yml
+        dest: /tmp/kube-flannel.yml
+        mode: '0644'
+
+    - name: Modify Flannel DaemonSet to use eth1 interface
+      ansible.builtin.replace:
+        path: /tmp/kube-flannel.yml
+        regexp: '(args:\s*\n\s*- --ip-masq\n\s*- --kube-subnet-mgr)'
+        replace: '\1\n        - --iface=eth1'
+
+    - name: Apply Flannel network plugin
+      ansible.builtin.command:
+        cmd: kubectl apply -f /tmp/kube-flannel.yml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    # Step 16
+    - name: Set architecture variable
+      set_fact:
+        helm_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+
+    - name: Download Helm binary
+      ansible.builtin.get_url:
+        url: https://get.helm.sh/helm-v3.16.4-linux-{{ helm_arch }}.tar.gz
+        dest: /tmp/helm-v3.16.4-linux-{{ helm_arch }}.tar.gz
+        mode: '0644'
+
+    - name: Extract Helm binary
+      ansible.builtin.unarchive:
+        src: /tmp/helm-v3.16.4-linux-{{ helm_arch }}.tar.gz
+        dest: /tmp
+        remote_src: true
+
+    - name: Install Helm binary to system PATH
+      ansible.builtin.copy:
+        src: /tmp/linux-{{ helm_arch }}/helm
+        dest: /usr/local/bin/helm
+        mode: '0755'
+        owner: root
+        group: root
+        remote_src: true
+
+    # Step 17
+    # Added because the helm-diff plugin gets partially installed in step 16 
+    # and needs to be reinstalled
+    - name: Remove existing helm-diff plugin directory if corrupted
+      ansible.builtin.file:
+        path: /home/vagrant/.local/share/helm/plugins/helm-diff
+        state: absent
+
+    - name: Install helm-diff plugin
+      ansible.builtin.command:
+        cmd: helm plugin install https://github.com/databus23/helm-diff --version v3.12.5
+      become: false
+      become_user: vagrant
+      environment:
+        HOME: /home/vagrant
+        KUBECONFIG: /home/vagrant/.kube/config
+      register: helm_diff_result
+      failed_when: 
+        - helm_diff_result.rc != 0
+        - '"plugin already exists" not in helm_diff_result.stderr'

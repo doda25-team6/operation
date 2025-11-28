@@ -1,3 +1,6 @@
 .env
 output/
 .vagrant
+
+# Kubernetes configuration
+admin.conf
