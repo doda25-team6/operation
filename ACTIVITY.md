@@ -112,6 +112,14 @@ https://github.com/doda25-team6/operation/pull/8
 
 Added F1 and F2 features in readme and project overview with tag a1 links for peer review.
 
+https://github.com/doda25-team6/operation/pull/9
+
+Add GitHub Package Registry support for F2 implementation
+
+https://github.com/doda25-team6/app/pull/16
+
+feat(F2): Implement GitHub Package Registry integration
+
 </p>
 </details>
 <br>
@@ -179,3 +187,18 @@ Next week, planning to fix the exposure of backend ports.
 <br>
 
 -----
+
+### WEEK 3 (24/11 - 30/11)
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A2**:
+https://github.com/doda25-team6/operation/pull/25
+
+fix for step 8 that makes Vagrant pass IPs to Ansible 
+
+https://github.com/doda25-team6/operation/pull/27
+
+Implemented 1.2 "Setting up the Kubernetes Controller" (steps 13 to 17)
