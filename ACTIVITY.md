@@ -202,3 +202,21 @@ fix for step 8 that makes Vagrant pass IPs to Ansible
 https://github.com/doda25-team6/operation/pull/27
 
 Implemented 1.2 "Setting up the Kubernetes Controller" (steps 13 to 17)
+
+</details>
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A2**:
+
+https://github.com/doda25-team6/operation/pull/12
+
+Updated docker compose paths, and got docker compose up working
+
+https://github.com/doda25-team6/operation/pull/26
+
+Added steps 9 to 12 into general.yml for adding repository, installing k8 tools, configuring containerd and starting kubelet
+
+</details>
