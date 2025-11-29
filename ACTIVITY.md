@@ -62,7 +62,6 @@ https://github.com/orgs/doda25-team6/projects/1
 </details>
 <br>
 
-<br> 
  <details><summary> Anhar </summary>
 <p>
 
@@ -156,7 +155,6 @@ https://github.com/doda25-team6/lib-version/pull/5
 </details>
 <br>
 
-<br> 
  <details><summary> Anhar </summary>
 <p>
 
@@ -220,3 +218,13 @@ https://github.com/doda25-team6/operation/pull/26
 Added steps 9 to 12 into general.yml for adding repository, installing k8 tools, configuring containerd and starting kubelet
 
 </details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A2**:
+
+- I implemented steps 5-8 of Assignment 2. See https://github.com/doda25-team6/operation/pull/24.
+- I performed peer review for my team and another group.
