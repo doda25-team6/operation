@@ -19,6 +19,18 @@ docker compose up --build
 
 Access the application at http://localhost:8080/sms/
 
+A2:   To start the cluster run the following:
+```cd operation 
+vagrant up```
+
+To manually provision (if you want to):
+`vagrant provision`
+
+To connect to the controller run:  `vagrant ssh ctrl`
+
+Finally, to destroy the cluster run:
+`vagrant destroy -f`
+
 ---
 
 ## Feature Implementation Details
