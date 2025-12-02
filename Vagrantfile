@@ -5,7 +5,7 @@
 WORKER_COUNT = ENV.fetch("WORKER_COUNT", 2).to_i
 
 # Configurable controller
-CTRL_CPUS   = ENV.fetch("CTRL_CPUS",   1).to_i
+CTRL_CPUS   = ENV.fetch("CTRL_CPUS",   2).to_i
 CTRL_MEMORY = ENV.fetch("CTRL_MEMORY", 4096).to_i  # MB
 
 # Configurable worker
