@@ -195,3 +195,27 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       become: yes
+
+
+    # Step 21
+
+    - name: Add Helm repository https://kubernetes.github.io/ingress-nginx
+      ansible.builtin.shell: |
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx && \
+        helm repo update
+      become: yes
+
+    - name: Freeing release name ingress-nginx if it exists
+      ansible.builtin.shell: |
+        helm uninstall ingress-nginx || true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
+
+    - name: Install ingress-nginx via Helm
+      ansible.builtin.shell: |
+        helm install ingress-nginx ingress-nginx/ingress-nginx \
+        --set controller.service.loadBalancerIP=192.168.56.90
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
