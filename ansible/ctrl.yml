@@ -186,6 +186,8 @@
           spec:
             ipAddressPools:
               - default
+            interfaces:
+              - eth1
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       become: yes
@@ -199,7 +201,7 @@
 
     # Step 21
 
-    - name: Add Helm repository https://kubernetes.github.io/ingress-nginx
+    - name: Add Helm repository for Ingress-Nginx https://kubernetes.github.io/ingress-nginx
       ansible.builtin.shell: |
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx && \
         helm repo update
@@ -212,10 +214,88 @@
         KUBECONFIG: /etc/kubernetes/admin.conf
       become: yes
 
+    - name: Freeing namespace ingress-nginx if it exists
+      ansible.builtin.shell: |
+        kubectl delete namespace ingress-nginx --ignore-not-found
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
+
     - name: Install ingress-nginx via Helm
       ansible.builtin.shell: |
         helm install ingress-nginx ingress-nginx/ingress-nginx \
+        -n ingress-nginx --create-namespace \
         --set controller.service.loadBalancerIP=192.168.56.90
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
+
+
+    # Step 22
+
+    - name: Add Helm repo for Kubernetes Dashboard
+      ansible.builtin.shell: |
+        helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/ && \
+        helm repo update
+      become: yes
+
+    - name: Freeing release name kubernetes-dashboard if it exists
+      ansible.builtin.shell: |
+          helm uninstall kubernetes-dashboard -n kubernetes-dashboard || true
+      environment:
+          KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
+
+    - name: Install Kubernetes Dashboard via Helm
+      ansible.builtin.shell: |
+        helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard \
+        -n kubernetes-dashboard --create-namespace \
+        --set service.type=ClusterIP
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
+
+
+    - name: Copying Dashboard admin-user file to /tmp/dashboard-adminuser.yaml
+      ansible.builtin.copy:
+        src: dashboard/admin.yml
+        dest: /tmp/dashboard-adminuser.yaml
+      become: yes
+
+    - name: Apply Dashboard admin-user configuration
+      ansible.builtin.shell: |
+          kubectl apply -f /tmp/dashboard-adminuser.yaml
+      environment:
+          KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
+
+
+
+#    - name: Wait for ingress-nginx admission webhook to be ready
+#      ansible.builtin.shell: |
+#        kubectl wait -n ingress-nginx \
+#        --for=condition=ready pod \
+#        -l app.kubernetes.io/component=admission
+#      environment:
+#        KUBECONFIG: /etc/kubernetes/admin.conf
+#      become: yes
+
+    - name: Copying Dashboard ingress file to /tmp/dashboard-ingress.yaml
+      ansible.builtin.copy:
+          src: dashboard/ingress.yml
+          dest: /tmp/dashboard-ingress.yaml
+      become: yes
+
+    - name: Remove broken ingress-nginx validating webhook
+      ansible.builtin.shell: |
+        kubectl delete validatingwebhookconfiguration ingress-nginx-admission --ignore-not-found
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      become: yes
+
+    - name: Apply Dashboard ingress configuration
+      ansible.builtin.shell: |
+          kubectl apply -f /tmp/dashboard-ingress.yaml
+      environment:
+          KUBECONFIG: /etc/kubernetes/admin.conf
       become: yes
