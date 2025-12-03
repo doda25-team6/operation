@@ -17,4 +17,16 @@ spec:
       - name: model-service-pod
         image: ghcr.io/doda25-team6/model-service:v0.1.3
         ports:
-        - containerPort: 81
+        - containerPort: 8081
+        env:
+        - name: model-service-port
+          valueFrom: 
+            configMapKeyRef:
+              name: app-config
+              key: model-service-port
+        - name: model-directory
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: model-directory
+          
