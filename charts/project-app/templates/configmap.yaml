@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "project-app.fullname" . }}-config
+data:
+  exampleValue: "{{ .Values.config.exampleValue }}"
+  logLevel: "{{ .Values.config.logLevel }}"

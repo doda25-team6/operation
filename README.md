@@ -132,3 +132,8 @@ A few changes have been made to remove the hard-coded use of the model by the mo
 The Dockerfile does not have an environment variable for the model file location. This is defined in the Docker Compose file only, to simplify the configuration.
 
 In `serve_model.py`, logic has been added to check whether the model can be loaded in the container, or if it has to be downloaded from the GitHub releases page in the `model-service` repository. It has been chosen to use a global variable `clf` in `serve_model.py`, instead of using Flask's app config, as it's expected to work well given the relatively small scale of the project.
+
+## Helm
+
+Run `vagrant up` and `vagrant ssh ctrl`
+Within the VM run: `cd vagrant/charts/project-app` and run `helm install project .`

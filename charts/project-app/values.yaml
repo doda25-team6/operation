@@ -1,0 +1,30 @@
+
+image:
+  repository: nginx
+  tag: "stable"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "project.local"
+  path: "/"
+  tls: false
+
+config:
+  exampleValue: "placeholder"
+  logLevel: "info"
+
+secretValues:
+  exampleSecret: "to-replace"
+
+persistence:
+  enabled: false
+  mountPath: "/usr/share/app-data"
+  hostPath: "/mnt/shared"       # for VirtualBox shared folder
