@@ -15,7 +15,7 @@ WORKER_MEMORY = ENV.fetch("WORKER_MEMORY", 6144).to_i
 # Base box
 BASE_BOX = "bento/ubuntu-24.04"
 
-# Network base (adjust as you like, just stay in a private range)
+# Network base
 NETWORK_BASE = "192.168.56"
 
 # Should be fixed, assignment 2 requires it
