@@ -1,0 +1,89 @@
+
+# Prometheus server deployment for metrics collection and monitoring
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "project-app.fullname" . }}
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: {{ include "project-app.fullname" . }}
+      containers:
+      - name: prometheus
+        image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
+        imagePullPolicy: {{ .Values.prometheus.image.pullPolicy }}
+        ports:
+        - containerPort: 9090
+          name: web
+        args:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        - '--storage.tsdb.path=/prometheus/'
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus/
+        - name: prometheus-storage
+          mountPath: /prometheus/
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: {{ include "project-app.fullname" . }}-prometheus
+      - name: prometheus-storage
+        emptyDir: {}
+---
+# Service to expose Prometheus web interface on port 9090
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "project-app.fullname" . }}
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+  - name: web
+    port: {{ .Values.prometheus.service.port }}
+    targetPort: 9090
+  type: {{ .Values.prometheus.service.type }}
+---
+# ServiceAccount for Prometheus to access Kubernetes API
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "project-app.fullname" . }}
+---
+# ClusterRole defining minimal permissions for application service discovery
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "project-app.fullname" . }}
+rules:
+- apiGroups: [""]
+  resources:
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+---
+# Bind ClusterRole permissions to Prometheus ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "project-app.fullname" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "project-app.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "project-app.fullname" . }}
+  namespace: {{ .Release.Namespace }}
