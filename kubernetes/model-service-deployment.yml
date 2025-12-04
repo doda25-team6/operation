@@ -29,4 +29,10 @@ spec:
             configMapKeyRef:
               name: app-config
               key: model-directory
-          
+        volumeMounts:
+        - name: model-volume
+          mountPath: /app/output # like in Docker Compose
+      volumes:
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: model-pvc            

@@ -219,3 +219,33 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       become: yes
+
+    # Enable NFS storage for model sharing via volume mount
+    - name: Install NFS server software
+      ansible.builtin.apt:
+        name: nfs-kernel-server
+        state: present
+        update_cache: yes # update package list
+
+    # All nodes can share the mounted model
+    # CIDR notation is used to define the range of allowed IPs
+    - name: Export the shared model files in /etc/exports
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        line: '/mnt/model 192.168.56.0/24(rw,sync,no_subtree_check,no_root_squash)'
+        state: present
+      notify:
+        - Restart NFS Service # Signal NFS restart if file is modified
+
+    - name: Ensure NFS service is running and restarts for reboots
+      ansible.builtin.service:
+        name: nfs-kernel-server
+        state: started
+        enabled: yes
+
+  handlers:
+    # Restart NFS when etc/export is modified
+    - name: Restart NFS Service
+      ansible.builtin.service:
+        name: nfs-kernel-server
+        state: restarted
