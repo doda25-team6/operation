@@ -228,8 +228,8 @@ Added steps 9 to 12 into general.yml for adding repository, installing k8 tools,
 
 - I implemented steps 5-8 of Assignment 2. See https://github.com/doda25-team6/operation/pull/24.
 - I performed peer review for my team and another group.
-
-
+<br>
+</details>
 
 <br> 
  <details><summary> Cem </summary>
