@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-service-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: model-service-pod
+  template:
+    metadata:
+      name: model-service-pod
+      labels:
+        app: model-service-pod
+    spec:
+      containers:
+      - name: model-service-pod
+        image: ghcr.io/doda25-team6/model-service:v0.1.3
+        ports:
+        - containerPort: 8081
+        env:
+        - name: model-service-port
+          valueFrom: 
+            configMapKeyRef:
+              name: app-config
+              key: model-service-port
+        - name: model-directory
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: model-directory
+        volumeMounts:
+        - name: model-volume
+          mountPath: /app/output # like in Docker Compose
+      volumes:
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: model-pvc            

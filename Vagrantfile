@@ -25,6 +25,9 @@ WORKER_IP_START = 101
 Vagrant.configure("2") do |config|
   config.vm.box = BASE_BOX
 
+  # Define shared folder for volume mounting the model
+  config.vm.synced_folder "./model", "/mnt/model", type: "virtualbox"
+
   # Global SSH settings
   config.ssh.insert_key = false
 

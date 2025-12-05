@@ -172,3 +172,9 @@
         enabled: true
 
 
+    # A3 - Setup NFS client for all nodes
+    - name: Install NFS common client tools
+      ansible.builtin.apt:
+        name: nfs-common
+        state: present
+        update_cache: yes
