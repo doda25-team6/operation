@@ -6,6 +6,18 @@
 - **[lib-version](https://github.com/doda25-team6/lib-version/tree/a1)** - Version-aware Maven library
 - **[operation](https://github.com/doda25-team6/operation/tree/a1)** - Docker Compose orchestration (this repository)
 
+## Repository Links (Tag: a2)
+- **[app](https://github.com/doda25-team6/app/tree/a2)**
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a2)** 
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a2)**
+- **[operation](https://github.com/doda25-team6/operation/tree/a2)**
+
+## Repository Links (Tag: a3)
+- **[app](https://github.com/doda25-team6/app/tree/a3)**
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a3)** 
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a3)**
+- **[operation](https://github.com/doda25-team6/operation/tree/a3)**
+
 ## Quick Start
 ```bash
 git clone https://github.com/doda25-team6/app.git
