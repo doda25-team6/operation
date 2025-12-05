@@ -228,3 +228,20 @@ Added steps 9 to 12 into general.yml for adding repository, installing k8 tools,
 
 - I implemented steps 5-8 of Assignment 2. See https://github.com/doda25-team6/operation/pull/24.
 - I performed peer review for my team and another group.
+
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A2**:
+
+- F2: Fixed the unexpected network configuration and configured as expected. Tested whether it is possible to access without port-forwards. [step-2-networking](https://github.com/doda25-team6/operation/pull/21)
+- F3: Configured ansible, enabled provisioning and parameterized VMs cpu and memory. Included placeholders for ctrl and node yml files. [step-3-provision-ansible](https://github.com/doda25-team6/operation/pull/22/)
+- F4: Registered ssh keys inside each VM to allow access via ssh. Looped over files to register them inside VMs. [step-4-ssh-keys](https://github.com/doda25-team6/operation/pull/23)
+- Peer reviewed another group and my team.
+
+</p>
+</details>
+<br>
