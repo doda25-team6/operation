@@ -245,3 +245,19 @@ Added steps 9 to 12 into general.yml for adding repository, installing k8 tools,
 </p>
 </details>
 <br>
+
+### WEEK 4 (1/12 - 7/12)
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/35
+
+Added the helm chart in operation
+
+</details>
+
+<br>
