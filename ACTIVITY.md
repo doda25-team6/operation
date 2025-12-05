@@ -261,3 +261,14 @@ Added the helm chart in operation
 </details>
 
 <br>
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+https://github.com/doda25-team6/operation/pull/36
+
+Initial implementation for setting up Prometheus.
+
+</details>
