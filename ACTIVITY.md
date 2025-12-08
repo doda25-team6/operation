@@ -284,3 +284,15 @@ This week, I worked on migrating the Docker Compose setup to Kubernetes, which i
 Creating a persistent volume mount for the model files proved more tricky than expected. The current implementation uses NFS to share a model folder between VMs, which required additions to the Vagrantfile and Ansible playbooks. See https://github.com/doda25-team6/operation/pull/34.
 <br>
 </details>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A3**:
+- This week for assignment 3 I worked on the part **Enable Monitoring**. I updated the app repository to capture and include metrics such as counter and gauge for requests to backend, visits per page and total and avg time spent on the website. [PR for metrics](https://github.com/doda25-team6/app/pull/20)
+
+</p>
+</details>
+<br>
