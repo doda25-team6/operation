@@ -62,7 +62,6 @@ https://github.com/orgs/doda25-team6/projects/1
 </details>
 <br>
 
-<br> 
  <details><summary> Anhar </summary>
 <p>
 
@@ -156,7 +155,6 @@ https://github.com/doda25-team6/lib-version/pull/5
 </details>
 <br>
 
-<br> 
  <details><summary> Anhar </summary>
 <p>
 
@@ -220,3 +218,81 @@ https://github.com/doda25-team6/operation/pull/26
 Added steps 9 to 12 into general.yml for adding repository, installing k8 tools, configuring containerd and starting kubelet
 
 </details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A2**:
+
+- I implemented steps 5-8 of Assignment 2. See https://github.com/doda25-team6/operation/pull/24.
+- I performed peer review for my team and another group.
+<br>
+</details>
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A2**:
+
+- F2: Fixed the unexpected network configuration and configured as expected. Tested whether it is possible to access without port-forwards. [step-2-networking](https://github.com/doda25-team6/operation/pull/21)
+- F3: Configured ansible, enabled provisioning and parameterized VMs cpu and memory. Included placeholders for ctrl and node yml files. [step-3-provision-ansible](https://github.com/doda25-team6/operation/pull/22/)
+- F4: Registered ssh keys inside each VM to allow access via ssh. Looped over files to register them inside VMs. [step-4-ssh-keys](https://github.com/doda25-team6/operation/pull/23)
+- Peer reviewed another group and my team.
+
+</p>
+</details>
+<br>
+
+### WEEK 4 (1/12 - 7/12)
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/35
+
+Added the helm chart in operation
+
+</details>
+
+<br>
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+https://github.com/doda25-team6/operation/pull/36
+
+Initial implementation for setting up Prometheus.
+
+</details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A3**:
+
+This week, I worked on migrating the Docker Compose setup to Kubernetes, which involved creating various K8s resources.
+Creating a persistent volume mount for the model files proved more tricky than expected. The current implementation uses NFS to share a model folder between VMs, which required additions to the Vagrantfile and Ansible playbooks. See https://github.com/doda25-team6/operation/pull/34.
+<br>
+</details>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A3**:
+- This week for assignment 3 I worked on the part **Enable Monitoring**. I updated the app repository to capture and include metrics such as counter and gauge for requests to backend, visits per page and total and avg time spent on the website. [PR for metrics](https://github.com/doda25-team6/app/pull/20)
+
+</p>
+</details>
+<br>

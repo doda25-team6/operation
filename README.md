@@ -6,6 +6,18 @@
 - **[lib-version](https://github.com/doda25-team6/lib-version/tree/a1)** - Version-aware Maven library
 - **[operation](https://github.com/doda25-team6/operation/tree/a1)** - Docker Compose orchestration (this repository)
 
+## Repository Links (Tag: a2)
+- **[app](https://github.com/doda25-team6/app/tree/a2)**
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a2)** 
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a2)**
+- **[operation](https://github.com/doda25-team6/operation/tree/a2)**
+
+## Repository Links (Tag: a3)
+- **[app](https://github.com/doda25-team6/app/tree/a3)**
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a3)** 
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a3)**
+- **[operation](https://github.com/doda25-team6/operation/tree/a3)**
+
 ## Quick Start
 ```bash
 git clone https://github.com/doda25-team6/app.git
@@ -18,6 +30,19 @@ docker compose up --build
 ```
 
 Access the application at http://localhost:8080/sms/
+
+A2:   To start the cluster run the following:
+```cd operation 
+vagrant up
+```
+
+To manually provision (if you want to):
+`vagrant provision`
+
+To connect to the controller run:  `vagrant ssh ctrl`
+
+Finally, to destroy the cluster run:
+`vagrant destroy -f`
 
 ---
 
@@ -119,3 +144,8 @@ A few changes have been made to remove the hard-coded use of the model by the mo
 The Dockerfile does not have an environment variable for the model file location. This is defined in the Docker Compose file only, to simplify the configuration.
 
 In `serve_model.py`, logic has been added to check whether the model can be loaded in the container, or if it has to be downloaded from the GitHub releases page in the `model-service` repository. It has been chosen to use a global variable `clf` in `serve_model.py`, instead of using Flask's app config, as it's expected to work well given the relatively small scale of the project.
+
+## Helm
+
+Run `vagrant up` and `vagrant ssh ctrl`
+Within the VM run: `cd vagrant/charts/project-app` and run `helm install project .`

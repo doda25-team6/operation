@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "project-app.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "project-app.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "project-app.fullname" . }}
+    spec:
+      containers:
+      - name: project-app
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+          - containerPort: {{ .Values.service.port }}
+        env:
+          - name: LOG_LEVEL
+            value: "{{ .Values.config.logLevel }}"
+          - name: EXAMPLE_VALUE
+            value: "{{ .Values.config.exampleValue }}"
+          - name: EXAMPLE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "project-app.fullname" . }}
+                key: example-secret
+
+        volumeMounts:
+        {{- if .Values.persistence.enabled }}
+        - name: shared-storage
+          mountPath: {{ .Values.persistence.mountPath }}
+        {{- end }}
+
+      volumes:
+      {{- if .Values.persistence.enabled }}
+      - name: shared-storage
+        hostPath:
+          path: {{ .Values.persistence.hostPath }}
+          type: DirectoryOrCreate
+      {{- end }}
