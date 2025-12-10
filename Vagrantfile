@@ -62,9 +62,35 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  # Generate Ansible inventory before provisioning
+  config.trigger.before :up, :provision do |trigger|
+    trigger.name = "Generate Ansible inventory"
+    trigger.ruby do |env, machine|
+      inventory_path = File.join(File.dirname(__FILE__), "ansible", "inventory.cfg")
+      
+      File.open(inventory_path, "w") do |f|
+        f.puts "[ctrl]"
+        f.puts "ctrl ansible_host=#{NETWORK_BASE}.#{CTRL_IP_SUFFIX} ansible_user=vagrant"
+        f.puts ""
+        f.puts "[workers]"
+        (1..WORKER_COUNT).each do |i|
+          worker_ip = "#{NETWORK_BASE}.#{WORKER_IP_START + i - 1}"
+          f.puts "node-#{i} ansible_host=#{worker_ip} ansible_user=vagrant"
+        end
+        f.puts ""
+        f.puts "[all:vars]"
+        f.puts "ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key"
+        f.puts "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
+      end
+      
+      puts "Generated Ansible inventory at #{inventory_path}"
+    end
+  end
+
   config.vm.provision "ansible" do |ansible|
     ansible.compatibility_mode = "2.0"
     ansible.playbook = "ansible/site.yml"
+    ansible.inventory_path = "ansible/inventory.cfg"
     
     # Pass IP addresses as extra_vars so the template can use them
     ansible.extra_vars = {

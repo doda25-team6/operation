@@ -1,0 +1,264 @@
+# ansible/finalization.yml
+---
+- name: Finalization - Install cluster services (Steps 20-23)
+  hosts: ctrl
+  become: true
+
+  tasks:
+    # Step 20: Install MetalLB
+    - name: Install MetalLB CRDs + components
+      ansible.builtin.shell: |
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml --validate=false
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Create MetalLB memberlist secret
+      ansible.builtin.shell: |
+        kubectl create secret generic memberlist \
+          -n metallb-system \
+          --from-literal=secretkey="$(openssl rand -base64 128)" \
+          --dry-run=client -o yaml | kubectl apply -f -
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Remove control-plane taint so MetalLB controller can schedule
+      ansible.builtin.shell: |
+        kubectl taint nodes ctrl node-role.kubernetes.io/control-plane:NoSchedule- || true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Restart MetalLB pods to pick up new TLS secret
+      ansible.builtin.shell: |
+        kubectl delete pods -n metallb-system -l app=metallb --ignore-not-found
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Create MetalLB IP pool
+      ansible.builtin.copy:
+        dest: /tmp/metallb-pool.yaml
+        content: |
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: default
+            namespace: metallb-system
+          spec:
+            addresses:
+              - 192.168.56.90-192.168.56.99
+
+    - name: Wait for MetalLB controller to be ready
+      ansible.builtin.shell: |
+        kubectl wait -n metallb-system -l app=metallb,component=controller --for=condition=ready pod --timeout=60s
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Apply MetalLB pool
+      ansible.builtin.shell: kubectl apply -f /tmp/metallb-pool.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Create MetalLB L2 Advertisement
+      ansible.builtin.copy:
+        dest: /tmp/metallb-l2.yaml
+        content: |
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+              name: l2
+              namespace: metallb-system
+          spec:
+            ipAddressPools:
+              - default
+
+    - name: Apply L2 Advertisement
+      ansible.builtin.shell: kubectl apply -f /tmp/metallb-l2.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+
+    # Step 21: Install Nginx Ingress Controller
+    - name: Add Helm repository https://kubernetes.github.io/ingress-nginx
+      ansible.builtin.shell: |
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx && \
+        helm repo update
+
+    - name: Freeing release name ingress-nginx if it exists
+      ansible.builtin.shell: |
+        helm uninstall ingress-nginx || true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Install ingress-nginx via Helm
+      ansible.builtin.shell: |
+        helm install ingress-nginx ingress-nginx/ingress-nginx \
+        --set controller.service.loadBalancerIP=192.168.56.90 \
+        --wait --timeout=2m
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+
+    # Step 22: Install Kubernetes Dashboard
+    - name: Add Helm repository for Kubernetes Dashboard
+      ansible.builtin.shell: |
+        helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/ && \
+        helm repo update
+
+    - name: Install Kubernetes Dashboard via Helm
+      ansible.builtin.shell: |
+        helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard \
+        --create-namespace \
+        --namespace kubernetes-dashboard \
+        --wait --timeout=2m
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Create ServiceAccount for admin-user
+      ansible.builtin.copy:
+        dest: /tmp/dashboard-adminuser.yaml
+        content: |
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: admin-user
+            namespace: kubernetes-dashboard
+
+    - name: Apply ServiceAccount
+      ansible.builtin.shell: kubectl apply -f /tmp/dashboard-adminuser.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Create ClusterRoleBinding for admin-user
+      ansible.builtin.copy:
+        dest: /tmp/dashboard-clusterrolebinding.yaml
+        content: |
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: admin-user
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+          - kind: ServiceAccount
+            name: admin-user
+            namespace: kubernetes-dashboard
+
+    - name: Apply ClusterRoleBinding
+      ansible.builtin.shell: kubectl apply -f /tmp/dashboard-clusterrolebinding.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Create Ingress for Dashboard
+      ansible.builtin.copy:
+        dest: /tmp/dashboard-ingress.yaml
+        content: |
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: kubernetes-dashboard
+            namespace: kubernetes-dashboard
+            annotations:
+              nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          spec:
+            ingressClassName: nginx
+            rules:
+            - host: dashboard.local
+              http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: kubernetes-dashboard-kong-proxy
+                      port:
+                        number: 443
+
+    - name: Apply Dashboard Ingress
+      ansible.builtin.shell: kubectl apply -f /tmp/dashboard-ingress.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+
+    # Step 23: Install Istio
+    - name: Set Istio architecture variable
+      ansible.builtin.set_fact:
+        istio_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
+    - name: Check if Istio is already downloaded
+      ansible.builtin.stat:
+        path: /home/vagrant/istio-1.25.2
+      register: istio_dir
+
+    - name: Download Istio 1.25.2
+      ansible.builtin.get_url:
+        url: "https://github.com/istio/istio/releases/download/1.25.2/istio-1.25.2-linux-{{ istio_arch }}.tar.gz"
+        dest: "/tmp/istio-1.25.2-linux-{{ istio_arch }}.tar.gz"
+        mode: '0644'
+      when: not istio_dir.stat.exists
+
+    - name: Extract Istio
+      ansible.builtin.unarchive:
+        src: "/tmp/istio-1.25.2-linux-{{ istio_arch }}.tar.gz"
+        dest: /home/vagrant/
+        remote_src: yes
+        owner: vagrant
+        group: vagrant
+      when: not istio_dir.stat.exists
+
+    - name: Add istioctl to PATH for vagrant user
+      ansible.builtin.lineinfile:
+        path: /home/vagrant/.bashrc
+        line: 'export PATH=$PATH:/home/vagrant/istio-1.25.2/bin'
+        state: present
+
+    - name: Create Istio configuration with custom loadBalancerIP
+      ansible.builtin.copy:
+        dest: /tmp/istio-config.yaml
+        content: |
+          apiVersion: install.istio.io/v1alpha1
+          kind: IstioOperator
+          spec:
+            components:
+              ingressGateways:
+              - name: istio-ingressgateway
+                enabled: true
+                k8s:
+                  service:
+                    loadBalancerIP: 192.168.56.91
+
+    - name: Check if Istio is already installed
+      ansible.builtin.shell: |
+        kubectl get namespace istio-system 2>/dev/null
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: istio_namespace
+      failed_when: false
+      changed_when: false
+
+    - name: Install Istio with custom configuration
+      ansible.builtin.shell: |
+        /home/vagrant/istio-1.25.2/bin/istioctl install -y -f /tmp/istio-config.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      when: istio_namespace.rc != 0
+
+    # Wait step: Ensure Istio pods are ready (reduced timeout for faster provisioning)
+    - name: Wait for Istio pods to be ready
+      ansible.builtin.shell: |
+        kubectl wait --for=condition=Ready pods --all -n istio-system --timeout=120s
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      when: istio_namespace.rc != 0
+
+    - name: Display Istio installation status
+      ansible.builtin.shell: |
+        kubectl get pods -n istio-system
+        kubectl get svc -n istio-system
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: istio_status
+
+    - name: Show Istio status
+      ansible.builtin.debug:
+        var: istio_status.stdout_lines
