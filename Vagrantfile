@@ -59,21 +59,6 @@ Vagrant.configure("2") do |config|
         vb.cpus   = WORKER_CPUS
         vb.memory = WORKER_MEMORY  
       end
-
-      # Run provisioning after all VMs are up
-      if i == WORKER_COUNT
-        node.vm.provision "ansible" do |ansible|
-          ansible.compatibility_mode = "2.0"
-          ansible.playbook = "ansible/site.yml"
-          ansible.inventory_path = "ansible/inventory.cfg"
-          ansible.limit = "all"  # Provision all VMs at once
-          
-          ansible.extra_vars = {
-            "ctrl_ip" => "#{NETWORK_BASE}.#{CTRL_IP_SUFFIX}",
-            "worker_ips" => (1..WORKER_COUNT).map { |i| "#{NETWORK_BASE}.#{WORKER_IP_START + (i - 1)}" }
-          }
-        end
-      end
     end
   end
 
@@ -93,6 +78,18 @@ Vagrant.configure("2") do |config|
         ansible_ssh_common_args='-o StrictHostKeyChecking=no'
       INV
     end
+  end
+
+  # Provision each VM as it comes up
+  config.vm.provision "ansible" do |ansible|
+    ansible.compatibility_mode = "2.0"
+    ansible.playbook = "ansible/site.yml"
+    ansible.inventory_path = "ansible/inventory.cfg"
+    
+    ansible.extra_vars = {
+      "ctrl_ip" => "#{NETWORK_BASE}.#{CTRL_IP_SUFFIX}",
+      "worker_ips" => (1..WORKER_COUNT).map { |i| "#{NETWORK_BASE}.#{WORKER_IP_START + (i - 1)}" }
+    }
   end
 
 end
