@@ -1,6 +1,6 @@
-# ansible/ctrl.yml
+# ansible/node.yml
 ---
-- name: Controller-specific configuration
+- name: Node-specific configuration
   hosts: "node-*"
   become: true
 

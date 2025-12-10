@@ -38,6 +38,8 @@ Access the application at http://localhost:8080/sms/
 ```bash
 cd operation
 vagrant up
+
+cd ansible && ansible-playbook -i inventory.cfg finalization.yml
 ```
 
 This will:
