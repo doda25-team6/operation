@@ -12,6 +12,7 @@ spec:
       name: model-service-pod
       labels:
         app: model-service-pod
+        version: v1
     spec:
       containers:
       - name: model-service-pod

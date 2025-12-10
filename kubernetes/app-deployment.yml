@@ -5,13 +5,14 @@ metadata:
 spec:
   replicas: 3
   selector:
-    matchLabels: 
+    matchLabels:
       app: app-pod
   template:
     metadata:
       name: app-pod
       labels:
         app: app-pod
+        version: v1
     spec:
       containers:
       - name: app-pod
