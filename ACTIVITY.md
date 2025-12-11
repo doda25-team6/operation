@@ -246,6 +246,8 @@ Added steps 9 to 12 into general.yml for adding repository, installing k8 tools,
 </details>
 <br>
 
+-----
+
 ### WEEK 4 (1/12 - 7/12)
 
 <br> 
@@ -295,4 +297,38 @@ Creating a persistent volume mount for the model files proved more tricky than e
 
 </p>
 </details>
+<br>
+
+-----
+
+### WEEK 5 (8/12 - 14/12)
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A2**:
+https://github.com/doda25-team6/operation/pull/39
+
+- Implemeted step 23 from assignment A2
+- Moved steps 20, 21, 22, 23 to finalization.yml
+- Vagrant file now generates inventory.cfg file for Ansible
+- Added setting up and testing steps in README
+- Added a model directory to resolve error when running vagrant up
+
+**A3**:
+https://github.com/doda25-team6/operation/pull/41
+
+- Deploy Prometheus server via Helm chart
+- Add /metrics endpoint for Prometheus scraping
+- Configure service discovery
+- Expose metrics via Ingress at /metrics
+- Update README with Prometheus access and usage instructions
+
+https://github.com/doda25-team6/app/pull/22
+
+- Implemented a histogram metric (page loading time)
+
+</details>
+
 <br>
