@@ -1,12 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-deployment
+  name: app-v1-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: app-pod
+      version: v1
   template:
     metadata:
       name: app-pod
