@@ -39,7 +39,11 @@ Access the application at http://localhost:8080/sms/
 cd operation
 vagrant up
 
-cd ansible && ansible-playbook -i inventory.cfg finalization.yml
+cd ansible && ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml
+
+# Deploy the application with Prometheus
+cd /vagrant/charts/project-app
+helm install project .
 ```
 
 This will:
@@ -92,7 +96,7 @@ vagrant destroy -f
 
 ### Accessing Kubernetes Dashboard
 
-**Option 1: Port forwarding (recommended)**
+**Option 1: Port forwarding**
 
 From your host:
 ```bash
@@ -105,7 +109,7 @@ Then access: https://192.168.56.100:8443
 
 Add to `/etc/hosts`:
 ```
-192.168.56.90 dashboard.local
+192.168.56.91 dashboard.local
 ```
 
 Access: http://dashboard.local
@@ -115,6 +119,30 @@ Access: http://dashboard.local
 vagrant ssh ctrl
 kubectl -n kubernetes-dashboard create token admin-user
 ```
+### Accessing Prometheus UI
+
+From your host:
+```bash
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-prometheus 9090:9090
+```
+
+Then access: https://192.168.56.100:9090
+
+### Accessing App
+
+Add to `/etc/hosts`:
+```
+192.168.56.90 project.local
+```
+
+Access: http://project.local
+        https://project.local/metrics
+
+The application includes Prometheus monitoring with three types of metrics:
+- *Counter*: click_rate_total, navigation_requests_total{page}
+- *Gauge*: time_on_site_seconds
+- *Histogram*: page_load_seconds{page}
+
 
 ### Verification
 
@@ -272,8 +300,3 @@ A few changes have been made to remove the hard-coded use of the model by the mo
 The Dockerfile does not have an environment variable for the model file location. This is defined in the Docker Compose file only, to simplify the configuration.
 
 In `serve_model.py`, logic has been added to check whether the model can be loaded in the container, or if it has to be downloaded from the GitHub releases page in the `model-service` repository. It has been chosen to use a global variable `clf` in `serve_model.py`, instead of using Flask's app config, as it's expected to work well given the relatively small scale of the project.
-
-## Helm
-
-Run `vagrant up` and `vagrant ssh ctrl`
-Within the VM run: `cd vagrant/charts/project-app` and run `helm install project .`

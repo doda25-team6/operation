@@ -36,6 +36,7 @@ data:
         - source_labels: [__meta_kubernetes_namespace]
           target_label: namespace
         - target_label: __metrics_path__
-          replacement: {{ .path }}
+          replacement: /metrics
+
       {{- end }}
 
