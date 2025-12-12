@@ -13,7 +13,14 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: {{ include "project-app.fullname" . }}
+              name: {{ include "project-app.fullname" . }}-frontend
+              port:
+                number: {{ .Values.service.port }}
+        - path: /metrics
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "project-app.fullname" . }}-frontend
               port:
                 number: {{ .Values.service.port }}
 {{- end }}

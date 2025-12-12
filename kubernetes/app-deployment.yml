@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: app-pod
-        image: ghcr.io/doda25-team6/app:0.0.96
+        image: ghcr.io/doda25-team6/app:0.0.97
         ports:
         - containerPort: 8080
         env:

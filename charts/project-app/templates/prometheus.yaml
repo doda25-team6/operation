@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "project-app.fullname" . }}
+  name: {{ include "project-app.fullname" . }}-prometheus
   labels:
     app: prometheus
 spec:
@@ -16,7 +16,7 @@ spec:
       labels:
         app: prometheus
     spec:
-      serviceAccountName: {{ include "project-app.fullname" . }}
+      serviceAccountName: {{ include "project-app.fullname" . }}-prometheus
       containers:
       - name: prometheus
         image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
@@ -43,7 +43,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "project-app.fullname" . }}
+  name: {{ include "project-app.fullname" . }}-prometheus
   labels:
     app: prometheus
 spec:
@@ -59,13 +59,13 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ include "project-app.fullname" . }}
+  name: {{ include "project-app.fullname" . }}-prometheus
 ---
 # ClusterRole defining minimal permissions for application service discovery
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "project-app.fullname" . }}
+  name: {{ include "project-app.fullname" . }}-prometheus
 rules:
 - apiGroups: [""]
   resources:
@@ -78,12 +78,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "project-app.fullname" . }}
+  name: {{ include "project-app.fullname" . }}-prometheus
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ include "project-app.fullname" . }}
+  name: {{ include "project-app.fullname" . }}-prometheus
 subjects:
 - kind: ServiceAccount
-  name: {{ include "project-app.fullname" . }}
+  name: {{ include "project-app.fullname" . }}-prometheus
   namespace: {{ .Release.Namespace }}

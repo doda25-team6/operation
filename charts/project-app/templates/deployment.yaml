@@ -19,6 +19,11 @@ spec:
         ports:
           - containerPort: {{ .Values.service.port }}
         env:
+          - name: MODEL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "project-app.fullname" . }}-config
+                key: model-host
           - name: LOG_LEVEL
             value: "{{ .Values.config.logLevel }}"
           - name: EXAMPLE_VALUE
