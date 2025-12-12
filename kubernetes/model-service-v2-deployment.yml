@@ -1,17 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: model-service-deployment
+  name: model-service-v2-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: model-service-pod
+      version: v2
   template:
     metadata:
       name: model-service-pod
       labels:
         app: model-service-pod
+        version: v2
     spec:
       containers:
       - name: model-service-pod
@@ -20,7 +22,7 @@ spec:
         - containerPort: 8081
         env:
         - name: model-service-port
-          valueFrom: 
+          valueFrom:
             configMapKeyRef:
               name: app-config
               key: model-service-port
@@ -35,4 +37,4 @@ spec:
       volumes:
       - name: model-volume
         persistentVolumeClaim:
-          claimName: model-pvc            
+          claimName: model-pvc
