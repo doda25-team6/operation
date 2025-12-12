@@ -357,3 +357,15 @@ https://github.com/doda25-team6/app/pull/22
 
 
 </details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A4**:
+
+This week, I worked on setting up Istio traffic management. This involved creating new Istio-specific Kubernetes resources, but also modifying existing K8s resources (from A3) to support the upcoming experiment(s) with different versions. Furthermore, I added an initial implementation for sticky sessions. See https://github.com/doda25-team6/operation/pull/40.
+
+<br>
+</details>
