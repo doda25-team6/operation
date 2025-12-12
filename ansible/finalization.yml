@@ -1,7 +1,7 @@
 # ansible/finalization.yml
 ---
 - name: Finalization - Install cluster services (Steps 20-23)
-  hosts: ctrl
+  hosts: all
   become: true
 
   tasks:

@@ -62,21 +62,19 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  # Generate Ansible inventory
-  config.trigger.before :up, :provision do |trigger|
-    trigger.name = "Generate Ansible inventory"
-    trigger.ruby do
-      File.write("ansible/inventory.cfg", <<~INV)
-        [ctrl]
-        ctrl ansible_host=#{NETWORK_BASE}.#{CTRL_IP_SUFFIX} ansible_user=vagrant
+  # Copy Vagrant's auto-generated inventory to inventory.cfg
+  config.trigger.after :up, :provision do |trigger|
+    trigger.name = "Generate inventory.cfg"
+    trigger.ruby do |env, machine|
+      vagrant_inventory = ".vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory"
+      if File.exist?(vagrant_inventory)
+        # Read Vagrant's auto-generated inventory
+        content = File.read(vagrant_inventory)
         
-        [workers]
-        #{(1..WORKER_COUNT).map { |i| "node-#{i} ansible_host=#{NETWORK_BASE}.#{WORKER_IP_START + i - 1} ansible_user=vagrant" }.join("\n")}
-        
-        [all:vars]
-        ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
-        ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-      INV
+        # Write to inventory.cfg
+        File.write("ansible/inventory.cfg", content)
+        puts "Generated ansible/inventory.cfg from Vagrant's auto-generated inventory"
+      end
     end
   end
 
@@ -84,7 +82,10 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.compatibility_mode = "2.0"
     ansible.playbook = "ansible/site.yml"
-    ansible.inventory_path = "ansible/inventory.cfg"
+    ansible.groups = {
+      "ctrl" => ["ctrl"],
+      "workers" => (1..WORKER_COUNT).map { |i| "node-#{i}" }
+    }
     
     ansible.extra_vars = {
       "ctrl_ip" => "#{NETWORK_BASE}.#{CTRL_IP_SUFFIX}",
