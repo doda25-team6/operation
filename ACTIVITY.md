@@ -332,3 +332,28 @@ https://github.com/doda25-team6/app/pull/22
 </details>
 
 <br>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A1**:
+[single-source-of-truth](https://github.com/doda25-team6/model-service/pull/12)
+
+- Implemented single source of truth for version requirement for model-service.
+- Created pyproject.toml file to keep track of version.
+
+
+**A1**:
+[stable-release](https://github.com/doda25-team6/app/pull/23)
+
+- Implemented manual stable releases with automatic patch version bumps. 
+- Main is automatically set to next pre-release version.
+- Release workflow creates a new commit and tags that with the new version.
+- Connected on same issue, a tiny fix on the versioning: [fix-on-version](https://github.com/doda25-team6/app/pull/24/files)
+
+
+
+
+</details>
