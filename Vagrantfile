@@ -62,11 +62,31 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  # Copy Vagrant's auto-generated inventory to inventory.cfg
+  config.trigger.after :up, :provision do |trigger|
+    trigger.name = "Generate inventory.cfg"
+    trigger.ruby do |env, machine|
+      vagrant_inventory = ".vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory"
+      if File.exist?(vagrant_inventory)
+        # Read Vagrant's auto-generated inventory
+        content = File.read(vagrant_inventory)
+        
+        # Write to inventory.cfg
+        File.write("ansible/inventory.cfg", content)
+        puts "Generated ansible/inventory.cfg from Vagrant's auto-generated inventory"
+      end
+    end
+  end
+
+  # Provision each VM as it comes up
   config.vm.provision "ansible" do |ansible|
     ansible.compatibility_mode = "2.0"
     ansible.playbook = "ansible/site.yml"
+    ansible.groups = {
+      "ctrl" => ["ctrl"],
+      "workers" => (1..WORKER_COUNT).map { |i| "node-#{i}" }
+    }
     
-    # Pass IP addresses as extra_vars so the template can use them
     ansible.extra_vars = {
       "ctrl_ip" => "#{NETWORK_BASE}.#{CTRL_IP_SUFFIX}",
       "worker_ips" => (1..WORKER_COUNT).map { |i| "#{NETWORK_BASE}.#{WORKER_IP_START + (i - 1)}" }

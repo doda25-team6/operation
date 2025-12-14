@@ -19,6 +19,8 @@
 - **[operation](https://github.com/doda25-team6/operation/tree/a3)**
 
 ## Quick Start
+
+### A1: Docker Compose
 ```bash
 git clone https://github.com/doda25-team6/app.git
 git clone https://github.com/doda25-team6/model-service.git
@@ -31,18 +33,172 @@ docker compose up --build
 
 Access the application at http://localhost:8080/sms/
 
-A2:   To start the cluster run the following:
-```cd operation 
+### A2: Kubernetes Cluster
+
+```bash
+cd operation
 vagrant up
+
+cd ansible && ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml
+
+# Deploy the application with Prometheus
+cd /vagrant/charts/project-app
+helm install project .
 ```
 
-To manually provision (if you want to):
-`vagrant provision`
+This will:
+1. Create 3 VMs (1 controller + 2 workers)
+2. Install Kubernetes v1.32.4
+3. Configure networking (Flannel CNI)
+4. Install cluster services (MetalLB, Nginx Ingress, Dashboard, Istio)
 
-To connect to the controller run:  `vagrant ssh ctrl`
+**Access the cluster:**
+```bash
+# From host machine
+kubectl --kubeconfig=admin.conf get nodes
 
-Finally, to destroy the cluster run:
-`vagrant destroy -f`
+# Or SSH into controller
+vagrant ssh ctrl
+kubectl get nodes
+```
+
+**Destroy cluster:**
+```bash
+vagrant destroy -f
+```
+
+---
+
+## A2: Kubernetes Cluster Setup Details
+
+### IP Allocations
+
+| Service | IP Address | Purpose |
+|---------|------------|---------|
+| Controller | 192.168.56.100 | Kubernetes API server |
+| Worker 1 | 192.168.56.101 | Worker node |
+| Worker 2 | 192.168.56.102 | Worker node |
+| Nginx Ingress | 192.168.56.90 | HTTP/HTTPS traffic |
+| Istio Gateway | 192.168.56.91 | Service mesh traffic |
+| MetalLB Pool | 192.168.56.90-99 | LoadBalancer IPs |
+
+### Installed Components
+
+- **Kubernetes**: v1.32.4 (kubeadm, kubelet, kubectl)
+- **Container Runtime**: Containerd 1.7.28
+- **CNI**: Flannel v0.26.7
+- **Load Balancer**: MetalLB v0.15.2
+- **Ingress**: Nginx Ingress Controller
+- **Dashboard**: Kubernetes Dashboard
+- **Service Mesh**: Istio 1.25.2
+- **Package Manager**: Helm 3.x
+- **Storage**: NFS server on controller
+
+### Accessing Kubernetes Dashboard
+
+**Option 1: Port forwarding**
+
+From your host:
+```bash
+kubectl --kubeconfig=admin.conf port-forward -n kubernetes-dashboard svc/kubernetes-dashboard-kong-proxy 8443:443 --address 0.0.0.0
+```
+
+Then access: https://192.168.56.100:8443
+
+**Option 2: Via hostname**
+
+Add to `/etc/hosts`:
+```
+192.168.56.91 dashboard.local
+```
+
+Access: http://dashboard.local
+
+**Get login token:**
+```bash
+vagrant ssh ctrl
+kubectl -n kubernetes-dashboard create token admin-user
+```
+### Accessing Prometheus UI
+
+From your host:
+```bash
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-prometheus 9090:9090
+```
+
+Then access: https://192.168.56.100:9090
+
+### Accessing App
+
+Add to `/etc/hosts`:
+```
+192.168.56.90 project.local
+```
+
+Access: http://project.local
+        https://project.local/metrics
+
+The application includes Prometheus monitoring with three types of metrics:
+- *Counter*: click_rate_total, navigation_requests_total{page}
+- *Gauge*: time_on_site_seconds
+- *Histogram*: page_load_seconds{page}
+
+
+### Verification
+
+After `vagrant up` completes, verify all services:
+
+```bash
+vagrant ssh ctrl
+
+# All nodes should be Ready
+kubectl get nodes
+
+# Check MetalLB
+kubectl get pods -n metallb-system
+
+# Check Dashboard
+kubectl get pods -n kubernetes-dashboard
+
+# Check Istio
+kubectl get pods -n istio-system
+istioctl version
+
+# Check LoadBalancer services
+kubectl get svc --all-namespaces | grep LoadBalancer
+```
+
+### Troubleshooting
+
+**Pods not starting:**
+```bash
+kubectl describe pod <pod-name> -n <namespace>
+kubectl logs <pod-name> -n <namespace>
+```
+
+**MetalLB not assigning IPs:**
+```bash
+kubectl describe ipaddresspool -n metallb-system
+kubectl logs -n metallb-system -l app=metallb
+```
+
+**Istio issues:**
+```bash
+istioctl analyze
+kubectl get pods -n istio-system
+```
+
+### Configuration
+
+**Change worker count:**
+```bash
+WORKER_COUNT=3 vagrant up
+```
+
+**Adjust resources:**
+```bash
+CTRL_CPUS=4 CTRL_MEMORY=8192 vagrant up
+```
 
 ---
 
@@ -102,7 +258,7 @@ A new version tag was created and pushed:
 git tag v0.1.1
 git push origin v0.1.1
 ```
-This triggers the `release-image.yml` workflow, which can be observed in each repository’s Actions tab.
+This triggers the `release-image.yml` workflow, which can be observed in each repository's Actions tab.
 
 ### Pulling the Published Images
 After the workflow completes successfully, the generated images become available on GHCR and can be pulled locally:
@@ -144,8 +300,3 @@ A few changes have been made to remove the hard-coded use of the model by the mo
 The Dockerfile does not have an environment variable for the model file location. This is defined in the Docker Compose file only, to simplify the configuration.
 
 In `serve_model.py`, logic has been added to check whether the model can be loaded in the container, or if it has to be downloaded from the GitHub releases page in the `model-service` repository. It has been chosen to use a global variable `clf` in `serve_model.py`, instead of using Flask's app config, as it's expected to work well given the relatively small scale of the project.
-
-## Helm
-
-Run `vagrant up` and `vagrant ssh ctrl`
-Within the VM run: `cd vagrant/charts/project-app` and run `helm install project .`

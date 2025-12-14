@@ -1,12 +1,12 @@
 
 # Default application container configuration
 image:
-  repository: nginx
-  tag: "stable"
+  repository: ghcr.io/doda25-team6/app
+  tag: "0.0.97"
   pullPolicy: IfNotPresent
 
 # Number of application replicas
-replicaCount: 1
+replicaCount: 3
 
 # Kubernetes service configuration
 service:
@@ -63,4 +63,8 @@ metricsEndpoints:
   # - name: "my-app"
   #   port: 9090
   #   path: "/metrics"
-  endpoints: []
+  endpoints:
+    - name: "frontend"
+      port: 8080
+      path: "/metrics"
+

@@ -246,6 +246,8 @@ Added steps 9 to 12 into general.yml for adding repository, installing k8 tools,
 </details>
 <br>
 
+-----
+
 ### WEEK 4 (1/12 - 7/12)
 
 <br> 
@@ -296,3 +298,74 @@ Creating a persistent volume mount for the model files proved more tricky than e
 </p>
 </details>
 <br>
+
+-----
+
+### WEEK 5 (8/12 - 14/12)
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A2**:
+https://github.com/doda25-team6/operation/pull/39
+
+- Implemeted step 23 from assignment A2
+- Moved steps 20, 21, 22, 23 to finalization.yml
+- Vagrant file now generates inventory.cfg file for Ansible
+- Added setting up and testing steps in README
+- Added a model directory to resolve error when running vagrant up
+
+**A3**:
+https://github.com/doda25-team6/operation/pull/41
+
+- Deploy Prometheus server via Helm chart
+- Add /metrics endpoint for Prometheus scraping
+- Configure service discovery
+- Expose metrics via Ingress at /metrics
+- Update README with Prometheus access and usage instructions
+
+https://github.com/doda25-team6/app/pull/22
+
+- Implemented a histogram metric (page loading time)
+
+</details>
+
+<br>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A1**:
+[single-source-of-truth](https://github.com/doda25-team6/model-service/pull/12)
+
+- Implemented single source of truth for version requirement for model-service.
+- Created pyproject.toml file to keep track of version.
+
+
+**A1**:
+[stable-release](https://github.com/doda25-team6/app/pull/23)
+
+- Implemented manual stable releases with automatic patch version bumps. 
+- Main is automatically set to next pre-release version.
+- Release workflow creates a new commit and tags that with the new version.
+- Connected on same issue, a tiny fix on the versioning: [fix-on-version](https://github.com/doda25-team6/app/pull/24/files)
+
+
+
+
+</details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A4**:
+
+This week, I worked on setting up Istio traffic management. This involved creating new Istio-specific Kubernetes resources, but also modifying existing K8s resources (from A3) to support the upcoming experiment(s) with different versions. Furthermore, I added an initial implementation for sticky sessions. See https://github.com/doda25-team6/operation/pull/40.
+
+<br>
+</details>
