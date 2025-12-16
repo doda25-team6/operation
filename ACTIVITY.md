@@ -369,3 +369,17 @@ This week, I worked on setting up Istio traffic management. This involved creati
 
 <br>
 </details>
+
+<br>
+
+ <details><summary> Sahana </summary>
+<p>
+
+**A4**:
+
+This week, I worked on mostly debugging network errors encountered and fixing the versioning, java version and upgrading it to 25 to satisfy the requirements.
+https://github.com/doda25-team6/lib-version/pull/8
+https://github.com/doda25-team6/app/pull/21
+
+<br>
+</details>
