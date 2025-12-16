@@ -1,0 +1,38 @@
+{{- if .Values.modelService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "project-app.fullname" . }}-model
+  labels:
+    app: {{ include "project-app.fullname" . }}
+    component: model
+spec:
+  replicas: {{ .Values.modelService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "project-app.fullname" . }}-model
+  template:
+    metadata:
+      labels:
+        app: {{ include "project-app.fullname" . }}-model
+        component: model
+    spec:
+      containers:
+      - name: model-service
+        image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.image.tag }}"
+        imagePullPolicy: {{ .Values.modelService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.modelService.service.port }}
+        env:
+          - name: SERVER_PORT
+            value: "{{ .Values.modelService.service.port }}"
+          - name: MODEL_DIRECTORY
+            value: "{{ .Values.modelService.mountPath }}"
+        volumeMounts:
+        - name: model-volume
+          mountPath: {{ .Values.modelService.mountPath }}
+      volumes:
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: "{{ if .Values.persistence.claimName }}{{ .Values.persistence.claimName }}{{ else }}{{ include "project-app.fullname" . }}-pvc{{ end }}"
+{{- end }}

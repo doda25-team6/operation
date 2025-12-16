@@ -43,7 +43,6 @@ spec:
       volumes:
       {{- if .Values.persistence.enabled }}
       - name: shared-storage
-        hostPath:
-          path: {{ .Values.persistence.hostPath }}
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: "{{ if .Values.persistence.claimName }}{{ .Values.persistence.claimName }}{{ else }}{{ include "project-app.fullname" . }}-pvc{{ end }}"
       {{- end }}
