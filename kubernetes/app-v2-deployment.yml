@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-v2-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-pod
+      version: v2
+  template:
+    metadata:
+      name: app-pod
+      labels:
+        app: app-pod
+        version: v2
+    spec:
+      containers:
+      - name: app-pod
+        image: ghcr.io/doda25-team6/app:0.0.96
+        ports:
+        - containerPort: 8080
+        env:
+        - name: model-host
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: model-host

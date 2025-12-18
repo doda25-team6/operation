@@ -33,13 +33,16 @@ docker compose up --build
 
 Access the application at http://localhost:8080/sms/
 
-### A2: Kubernetes Cluster
+### A2-A4: Kubernetes Cluster
 
 ```bash
 cd operation
 vagrant up
 
 cd ansible && ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml
+
+# Enable Istio sidecar injection for the namespace
+kubectl label ns default istio-injection=enabled
 
 # Deploy the application with Prometheus
 cd /vagrant/charts/project-app
