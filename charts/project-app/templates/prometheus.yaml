@@ -37,7 +37,12 @@ spec:
         configMap:
           name: {{ include "project-app.fullname" . }}-prometheus
       - name: prometheus-storage
+        {{- if .Values.prometheus.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: "{{ include "project-app.fullname" . }}-prometheus-pvc"
+        {{- else }}
         emptyDir: {}
+        {{- end }}
 ---
 # Service to expose Prometheus web interface on port 9090
 apiVersion: v1
@@ -65,7 +70,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "project-app.fullname" . }}-prometheus
+  name: {{ include "project-app.fullname" . }}-prometheus-{{ .Release.Namespace }}
 rules:
 - apiGroups: [""]
   resources:
@@ -78,11 +83,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "project-app.fullname" . }}-prometheus
+  name: {{ include "project-app.fullname" . }}-prometheus-{{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ include "project-app.fullname" . }}-prometheus
+  name: {{ include "project-app.fullname" . }}-prometheus-{{ .Release.Namespace }}
 subjects:
 - kind: ServiceAccount
   name: {{ include "project-app.fullname" . }}-prometheus

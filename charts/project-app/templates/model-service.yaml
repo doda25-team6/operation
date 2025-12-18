@@ -1,0 +1,18 @@
+{{- if .Values.modelService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "project-app.fullname" . }}-model
+  labels:
+    app: {{ include "project-app.fullname" . }}
+    component: model
+spec:
+  type: {{ .Values.modelService.service.type }}
+  selector:
+    app: {{ include "project-app.fullname" . }}-model
+  ports:
+    - port: {{ .Values.modelService.service.port }}
+      targetPort: {{ .Values.modelService.service.port }}
+      protocol: TCP
+      name: metrics
+{{- end }}

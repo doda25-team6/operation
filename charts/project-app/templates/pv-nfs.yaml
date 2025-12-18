@@ -1,0 +1,17 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "project-app.fullname" . }}-pv
+  labels:
+    app: {{ include "project-app.fullname" . }}
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  accessModes:
+    - {{ .Values.persistence.accessMode }}
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: {{ .Values.persistence.nfs.server }}
+    path: {{ .Values.persistence.nfs.path }}
+{{- end }}

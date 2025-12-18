@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  model-service-port: "8081"
+  model-directory: "/app/output"
+  model-host: "http://model-service:8081"
