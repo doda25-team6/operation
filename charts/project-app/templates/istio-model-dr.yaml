@@ -1,0 +1,10 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: model-service-dr
+spec:
+  host: {{ .Values.istio.modelService.destinationRule.host }}
+  subsets:
+  {{- toYaml .Values.istio.modelService.destinationRule.subsets | nindent 2 }}
+{{- end }}
