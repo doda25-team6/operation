@@ -44,7 +44,7 @@ persistence:
 
 # Prometheus Monitoring Configuration
 prometheus:
-  enabled: false
+  enabled: true
   image:
     repository: prom/prometheus
     tag: "v2.45.0"
@@ -61,7 +61,7 @@ prometheus:
   
 # ServiceMonitor Configuration
 serviceMonitor:
-  enabled: false
+  enabled: true
   interval: "30s"
   scrapeTimeout: "10s"
   
@@ -89,7 +89,7 @@ modelService:
     repository: ghcr.io/doda25-team6/model-service
     tag: "v0.1.3"
     pullPolicy: IfNotPresent
-  replicaCount: 1
+  replicaCount: 3
   mountPath: "/app/output"
   service:
     port: 8081
