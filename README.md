@@ -146,6 +146,46 @@ The application includes Prometheus monitoring with three types of metrics:
 - *Gauge*: time_on_site_seconds
 - *Histogram*: page_load_seconds{page}
 
+### Accessing Grafana
+
+Grafana is automatically deployed with the application for metrics visualization.
+
+**Access via port-forward:**
+```bash
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-grafana 3000:3000
+```
+
+Then access: http://192.168.56.100:3000
+- Username: `admin`
+- Password: `admin`
+
+**Dashboard Location:**
+- Navigate to Dashboards → "Application Metrics"
+- Dashboard is automatically provisioned on deployment
+
+**Dashboard Panels (using Prometheus metric names):**
+1. **click_rate_total** - Time Series showing request rate (using `rate()` function)
+2. **time_on_site_seconds** - Gauge with color thresholds (red <10s, yellow 10-30s, green >30s)
+3. **navigation_requests_total** - Histogram showing page visit distribution
+4. **page_load_seconds (P95)** - Time Series showing 95th percentile load time (using `histogram_quantile()`)
+5. **click_rate_total (Total)** - Stat panel showing total prediction count
+6. **page_load_seconds (Statistics)** - Table with avg, P50, P95, P99 by page
+
+**Advanced Features:**
+- Uses PromQL functions: `rate()`, `histogram_quantile()`, `sum by()`
+- Aggregates metrics across pods where appropriate
+- Interactive timeframe selector (5m to 30d)
+- Auto-refresh intervals (5s to 5m)
+
+**Manual Dashboard Import (Optional):**
+
+If the dashboard isn't auto-loaded:
+1. Copy JSON from `charts/project-app/dashboards/application-metrics.json`
+2. In Grafana: Dashboards → Import → Paste JSON
+3. Select "Prometheus" as datasource
+4. Click Import
+
+
 
 ### Verification
 

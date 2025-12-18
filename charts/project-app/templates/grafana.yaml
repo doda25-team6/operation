@@ -1,0 +1,85 @@
+{{- if .Values.grafana.enabled }}
+# Grafana deployment for metrics visualization
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "project-app.fullname" . }}-grafana
+  labels:
+    {{- include "project-app.labels" . | nindent 4 }}
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: {{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}
+        imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        # Admin credentials from values.yaml
+        - name: GF_SECURITY_ADMIN_USER
+          value: {{ .Values.grafana.adminUser | quote }}
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: {{ .Values.grafana.adminPassword | quote }}
+        volumeMounts:
+        # Prometheus datasource configuration
+        - name: datasources
+          mountPath: /etc/grafana/provisioning/datasources
+        # Dashboard provisioning configuration
+        - name: dashboards-config
+          mountPath: /etc/grafana/provisioning/dashboards
+        # Actual dashboard JSON files
+        - name: dashboards
+          mountPath: /var/lib/grafana/dashboards
+        {{- if .Values.grafana.persistence.enabled }}
+        # Persistent storage for user changes
+        - name: storage
+          mountPath: /var/lib/grafana
+        {{- end }}
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+      volumes:
+      # ConfigMaps for auto-provisioning
+      - name: datasources
+        configMap:
+          name: {{ include "project-app.fullname" . }}-grafana-datasources
+      - name: dashboards-config
+        configMap:
+          name: {{ include "project-app.fullname" . }}-grafana-dashboards
+      - name: dashboards
+        configMap:
+          name: {{ include "project-app.fullname" . }}-grafana-dashboards
+      {{- if .Values.grafana.persistence.enabled }}
+      - name: storage
+        persistentVolumeClaim:
+          claimName: {{ include "project-app.fullname" . }}-grafana
+      {{- end }}
+---
+# Service to expose Grafana UI
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "project-app.fullname" . }}-grafana
+  labels:
+    {{- include "project-app.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: http
+  selector:
+    app: grafana
+{{- end }}

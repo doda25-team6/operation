@@ -95,3 +95,21 @@ modelService:
     port: 8081
     type: ClusterIP
 
+# Grafana Visualization Configuration
+grafana:
+  enabled: true
+  image:
+    repository: grafana/grafana
+    tag: "10.2.3"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  # Default admin credentials
+  adminUser: admin
+  adminPassword: admin
+  # Persistent storage for Grafana data (dashboard edits, user preferences)
+  persistence:
+    enabled: false
+    size: "1Gi"
+    storageClass: ""
