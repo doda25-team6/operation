@@ -1,0 +1,25 @@
+{{- if .Values.rateLimit.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "project-app.fullname" . }}-ratelimit
+  labels:
+    {{- include "project-app.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      port: 8081
+      targetPort: 8081
+      protocol: TCP
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "project-app.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: ratelimit
+{{- end }}
+
+
