@@ -169,3 +169,21 @@ istio:
             host: model-service
             subset: v1
 
+# Envoy/Istio ingress rate limiting (enforced at Istio IngressGateway via EnvoyFilter)
+rateLimit:
+  enabled: true
+  # Identify a "user" by this request header value.
+  headerName: x-user
+  # 10 requests per 60 seconds
+  requests: 10
+  window: 60s
+  # Namespace where the Istio IngressGateway runs (where EnvoyFilter must be created)
+  ingressGatewayNamespace: istio-system
+  # Prefixes exempt from rate limiting
+  excludePrefixes:
+    - /metrics
+    - /health
+    - /ready
+    - /live
+    - /actuator/health
+
