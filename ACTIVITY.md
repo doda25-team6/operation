@@ -420,3 +420,17 @@ Added the A4 changes into charts
 
 <br>
 </details>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/47
+
+- Made a draft pr for rate limits for additional use case.  
+
+<br>
+</details>
