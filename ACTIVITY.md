@@ -402,3 +402,21 @@ https://github.com/doda25-team6/operation/pull/45
 
 <br>
 </details>
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/44
+
+Integrated helm chart changes after migration to kubernetes
+
+
+https://github.com/doda25-team6/operation/pull/46
+
+Added the A4 changes into charts
+
+<br>
+</details>
