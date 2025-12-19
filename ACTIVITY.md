@@ -383,3 +383,22 @@ https://github.com/doda25-team6/app/pull/21
 
 <br>
 </details>
+
+-----
+
+### WEEK 6 (15/12 - 21/12)
+
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/45
+
+- Implemented a Grafana dashboard to display the metrics developed in Prometheus section. The dashboard includes gauges, histograms, stats, timeseries and tables.
+- Updated the README to include documenattion about Grafana. 
+
+<br>
+</details>
