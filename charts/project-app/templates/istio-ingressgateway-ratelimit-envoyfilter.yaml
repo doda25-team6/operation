@@ -1,0 +1,143 @@
+{{- if and .Values.istio.enabled .Values.rateLimit.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ include "project-app.fullname" . }}-ingress-ratelimit
+  namespace: {{ .Values.rateLimit.ingressGatewayNamespace }}
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    # 1) Add a cluster the ingressgateway Envoy can use to reach the ratelimit service over gRPC.
+    - applyTo: CLUSTER
+      match:
+        context: GATEWAY
+      patch:
+        operation: ADD
+        value:
+          name: ratelimit_cluster
+          type: STRICT_DNS
+          connect_timeout: 0.25s
+          lb_policy: ROUND_ROBIN
+          http2_protocol_options: {}
+          load_assignment:
+            cluster_name: ratelimit_cluster
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: {{ include "project-app.fullname" . }}-ratelimit.{{ .Release.Namespace }}.svc.cluster.local
+                          port_value: 8081
+
+    # 2) Insert Envoy ratelimit filter before router.
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          portNumber: 80
+          filterChain:
+            filter:
+              name: envoy.filters.network.http_connection_manager
+              subFilter:
+                name: envoy.filters.http.router
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.ratelimit
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.ratelimit.v3.RateLimit
+            domain: project-app
+            failure_mode_deny: false
+            rate_limited_as_resource_exhausted: true
+            rate_limit_service:
+              transport_api_version: V3
+              grpc_service:
+                envoy_grpc:
+                  cluster_name: ratelimit_cluster
+                timeout: 0.25s
+
+    # 3) Insert Lua before ratelimit to (a) tag exempt paths, (b) enforce "shared bucket" behavior if x-user missing.
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          portNumber: 80
+          filterChain:
+            filter:
+              name: envoy.filters.network.http_connection_manager
+              subFilter:
+                name: envoy.filters.http.ratelimit
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.lua
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+            inline_code: |
+              function starts_with(str, prefix)
+                return string.sub(str, 1, string.len(prefix)) == prefix
+              end
+
+              function envoy_on_request(request_handle)
+                local headers = request_handle:headers()
+                local path = headers:get(":path") or "/"
+
+                -- Ensure missing x-user collapses into a single shared bucket.
+                if headers:get("{{ .Values.rateLimit.headerName }}") == nil then
+                  headers:add("{{ .Values.rateLimit.headerName }}", "__missing__")
+                end
+
+                -- Mark requests as exempt/limited; ratelimit config only defines limits for scope=limited.
+                if starts_with(path, "/metrics")
+                  or starts_with(path, "/health")
+                  or starts_with(path, "/ready")
+                  or starts_with(path, "/live")
+                  or starts_with(path, "/actuator/health") then
+                  headers:replace("x-rl-scope", "exempt")
+                else
+                  headers:replace("x-rl-scope", "limited")
+                end
+              end
+
+    # 4) Enable rate limit descriptor generation on gateway routes using x-rl-scope + x-user.
+    #
+    # We patch the vhost(s) for the HTTP gateway; scope=exempt has no matching descriptor, so it is effectively unlimited.
+    - applyTo: VIRTUAL_HOST
+      match:
+        context: GATEWAY
+        routeConfiguration:
+          name: "http.80"
+      patch:
+        operation: MERGE
+        value:
+          rate_limits:
+            - actions:
+                - request_headers:
+                    header_name: x-rl-scope
+                    descriptor_key: scope
+                - request_headers:
+                    header_name: {{ .Values.rateLimit.headerName }}
+                    descriptor_key: x-user
+
+    # Fallback for some Istio versions where route config name is just "80".
+    - applyTo: VIRTUAL_HOST
+      match:
+        context: GATEWAY
+        routeConfiguration:
+          name: "80"
+      patch:
+        operation: MERGE
+        value:
+          rate_limits:
+            - actions:
+                - request_headers:
+                    header_name: x-rl-scope
+                    descriptor_key: scope
+                - request_headers:
+                    header_name: {{ .Values.rateLimit.headerName }}
+                    descriptor_key: x-user
+{{- end }}
+
+

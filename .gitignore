@@ -1,6 +1,7 @@
 .env
 output/
 .vagrant
+istio-1.28.1
 
 # Kubernetes configuration
 admin.conf

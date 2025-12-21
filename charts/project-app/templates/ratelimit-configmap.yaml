@@ -1,0 +1,21 @@
+{{- if .Values.rateLimit.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "project-app.fullname" . }}-ratelimit
+  labels:
+    {{- include "project-app.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    domain: project-app
+    descriptors:
+      - key: scope
+        value: limited
+        descriptors:
+          - key: x-user
+            rate_limit:
+              unit: minute
+              requests_per_unit: {{ .Values.rateLimit.requests }}
+{{- end }}
+
+
