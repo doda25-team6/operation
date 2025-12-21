@@ -434,3 +434,20 @@ https://github.com/doda25-team6/operation/pull/47
 
 <br>
 </details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A4**:
+
+Last week, I put up a PR that implemented Istio traffic management. During code review, some mistakes were found, which I solved with changes to the Istio and K8s service resources this week. After these changes, the PR was merged. See https://github.com/doda25-team6/operation/pull/40.
+
+**A2**:
+
+I changed the Vagrantfile's number of cores for the controller node such that it follows the recommended value from the assignment text. See https://github.com/doda25-team6/operation/pull/43.
+
+**
+<br>
+</details>
