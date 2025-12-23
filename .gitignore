@@ -1,6 +1,7 @@
 .env
 output/
 .vagrant
+*.DS_Store
 
 # Kubernetes configuration
 admin.conf
