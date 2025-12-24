@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "project-app.fullname" . }}-alertmanager-config
+  labels:
+    {{- include "project-app.labels" . | nindent 4 }}
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'default'
+      routes:
+      - match:
+          alertname: HighRequestRate
+        receiver: 'default'
+
+    receivers:
+    - name: 'default'
+      # Alerts will be visible in AlertManager UI at http://alertmanager:9093
+      # To add email notifications, create a Secret and configure smtp settings:
+      email_configs:
+      - to: '{{ index .Values.alertmanager.email "to" | default "default@email.com" }}'
+        from: '{{ index .Values.alertmanager.email "from" | default "alertmanager@gmail.com" }}'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: '{{ index .Values.alertmanager.email "from" | default "alertmanager@gmail.com" }}'
+        auth_password_file: '/etc/alertmanager/secrets/smtp-password'
+        headers:
+          Subject: 'Prometheus Alert: {{ `{{ .GroupLabels.alertname }}` }}'

@@ -95,3 +95,8 @@ modelService:
     port: 8081
     type: ClusterIP
 
+# AlertManager email configuration
+alertmanager:
+  email:
+    to: "your-email@gmail.com"      # Alert recipient
+    from: "alertmanager@gmail.com"    # Gmail account (also used for SMTP auth)
