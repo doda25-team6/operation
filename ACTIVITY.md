@@ -451,3 +451,24 @@ I changed the Vagrantfile's number of cores for the controller node such that it
 **
 <br>
 </details>
+
+-----
+
+
+### WEEK 7 (22/12 - 28/12)
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/49
+
+- AlertManager deployment with Gmail SMTP support
+- PrometheusRule: HighRequestRate (>15 req/min for 2min)
+- SMTP password in Secret, emails configurable via Helm
+- Updated README
+
+<br>
+</details>
