@@ -1,0 +1,21 @@
+{{- if .Values.grafana.enabled }}
+# Prometheus datasource configuration
+# Auto-configures Grafana to connect to Prometheus for querying metrics
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "project-app.fullname" . }}-grafana-datasources
+  labels:
+    {{- include "project-app.labels" . | nindent 4 }}
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      # URL points to Prometheus service in the same namespace
+      url: http://{{ include "project-app.fullname" . }}-prometheus:9090
+      # UID must match dashboard queries
+      uid: prometheus
+      isDefault: true
+{{- end }}
