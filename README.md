@@ -101,9 +101,9 @@ vagrant destroy -f
 
 **Option 1: Port forwarding**
 
-From your host:
+From ctrl:
 ```bash
-kubectl --kubeconfig=admin.conf port-forward -n kubernetes-dashboard svc/kubernetes-dashboard-kong-proxy 8443:443 --address 0.0.0.0
+kubectl port-forward -n kubernetes-dashboard svc/kubernetes-dashboard-kong-proxy 8443:443 --address 0.0.0.0
 ```
 
 Then access: https://192.168.56.100:8443
@@ -124,12 +124,28 @@ kubectl -n kubernetes-dashboard create token admin-user
 ```
 ### Accessing Prometheus UI
 
-From your host:
+From ctrl:
 ```bash
 kubectl port-forward --address 0.0.0.0 svc/project-project-app-prometheus 9090:9090
 ```
 
-Then access: https://192.168.56.100:9090
+Then access: http://192.168.56.100:9090
+
+### Accessing AlertManager UI
+
+From ctrl:
+```bash
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-alertmanager 9093:9093
+```
+
+Then access: http://192.168.56.100:9093
+
+AlertManager displays Prometheus alerts. To test, generate high traffic and alerts will appear when request rate exceeds 15/min for 2 minutes.
+
+**To configure email alerts:**
+1. Get Gmail App Password: https://myaccount.google.com/apppasswords (requires 2FA)
+2. Create Secret: `kubectl create secret generic alertmanager-smtp --from-literal=smtp-password='YOUR_APP_PASSWORD'`
+3. Deploy: `helm upgrade project . --set alertmanager.email.to=your@gmail.com --set alertmanager.email.from=your@gmail.com`
 
 ### Accessing App
 
@@ -139,7 +155,7 @@ Add to `/etc/hosts`:
 ```
 
 Access: http://project.local
-        https://project.local/metrics
+        http://project.local/metrics
 
 The application includes Prometheus monitoring with three types of metrics:
 - *Counter*: click_rate_total, navigation_requests_total{page}

@@ -12,6 +12,17 @@ data:
       scrape_interval: {{ .Values.prometheus.scrapeInterval }}
       evaluation_interval: {{ .Values.prometheus.evaluationInterval }}
 
+    # AlertManager configuration
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets:
+          - '{{ include "project-app.fullname" . }}-alertmanager:9093'
+
+    # Load alert rules
+    rule_files:
+      - '/etc/prometheus/rules/*.rules'
+
     scrape_configs:
 
       # Dynamic service discovery for application metrics endpoints
