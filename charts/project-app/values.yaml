@@ -30,13 +30,13 @@ secretValues:
 
 # Persistent storage configuration
 persistence:
-  enabled: false
+  enabled: true
   mountPath: "/usr/share/app-data"
   hostPath: "/mnt/shared"       # VirtualBox shared folder for multi-pod access
   # NFS-backed persistent configuration (used when persistence.enabled = true)
   nfs:
     server: "192.168.56.100"
-    path: "/mnt/model"
+    path: "/srv/nfs/model"
   # PVC settings
   accessMode: ReadWriteMany
   size: "1Gi"

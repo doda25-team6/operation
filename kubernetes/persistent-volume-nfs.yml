@@ -10,4 +10,4 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: 192.168.56.100 # ctrl node
-    path: "/mnt/model" # path on VM
+    path: "/srv/nfs/model" # NFS-exportable path on VM
