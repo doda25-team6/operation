@@ -105,10 +105,21 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(click_rate_total[5m])",
-          "legendFormat": "Prediction Requests",
+          "expr": "rate(click_rate_total{version=\"v1\"}[5m])",
+          "legendFormat": "Prediction Requests v1",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "rate(click_rate_total{version=\"v2\"}[5m])",
+          "legendFormat": "Prediction Requests v2",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "click_rate_total",
@@ -175,10 +186,19 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "time_on_site_seconds",
-          "legendFormat": "Time on Site",
-          "range": true,
+          "expr": "time_on_site_seconds{version=\"v1\"}",
+          "legendFormat": "Time on Site v1",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "time_on_site_seconds{version=\"v2\"}",
+          "legendFormat": "Time on Site v2",
+          "refId": "B"
         }
       ],
       "title": "time_on_site_seconds",
@@ -359,10 +379,21 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, rate(page_load_seconds_bucket[5m]))",
-          "legendFormat": "{{page}} P95",
+          "expr": "histogram_quantile(0.95, rate(page_load_seconds_bucket{version=\"v1\"}[5m]))",
+          "legendFormat": "{{page}} P95 v1",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, rate(page_load_seconds_bucket{version=\"v2\"}[5m]))",
+          "legendFormat": "{{page}} P95 v2",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "page_load_seconds (P95)",
