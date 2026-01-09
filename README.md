@@ -18,6 +18,12 @@
 - **[lib-version](https://github.com/doda25-team6/lib-version/tree/a3)**
 - **[operation](https://github.com/doda25-team6/operation/tree/a3)**
 
+## Repository Links (Tag: a4)
+- **[app](https://github.com/doda25-team6/app/tree/a4)**
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a4)** 
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a4)**
+- **[operation](https://github.com/doda25-team6/operation/tree/a4)**
+
 ## Quick Start
 
 ### A1: Docker Compose
