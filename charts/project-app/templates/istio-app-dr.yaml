@@ -1,0 +1,12 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: app-dr
+spec:
+  host: {{ .Values.istio.app.destinationRule.host }}
+  trafficPolicy:
+    {{- toYaml .Values.istio.app.destinationRule.trafficPolicy | nindent 4 }}
+  subsets:
+  {{- toYaml .Values.istio.app.destinationRule.subsets | nindent 2 }}
+{{- end }}
