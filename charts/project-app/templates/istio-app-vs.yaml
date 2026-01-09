@@ -5,9 +5,35 @@ metadata:
   name: {{ .Values.istio.app.virtualService.name }}
 spec:
   gateways:
-    {{- toYaml .Values.istio.app.virtualService.gateways | nindent 4 }}
+  - {{ .Values.istio.gateway.name }}
   hosts:
     {{- toYaml .Values.istio.app.virtualService.hosts | nindent 4 }}
   http:
-  {{- toYaml .Values.istio.app.virtualService.http | nindent 2 }}
+  # Canary users (sticky): if header matches, always route to v2
+  - match:
+    - uri:
+        prefix: /
+      headers:
+        {{ .Values.istio.app.sticky.headerName }}:
+          regex: {{ .Values.istio.app.sticky.canaryUserRegex | quote }}
+    route:
+    - destination:
+        host: {{ include "project-app.fullname" . }}-frontend
+        subset: v2
+    headers:
+      response:
+        add:
+          x-routed-version: "v2"
+  # Default users: always route to v1
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: {{ include "project-app.fullname" . }}-frontend
+        subset: v1
+    headers:
+      response:
+        add:
+          x-routed-version: "v1"
 {{- end }}

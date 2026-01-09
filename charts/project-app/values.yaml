@@ -5,6 +5,16 @@ image:
   tag: "0.0.97"
   pullPolicy: IfNotPresent
 
+# Canary versions for the application (Istio subsets v1/v2)
+# When istio.enabled=true, the chart will deploy both versions and split traffic.
+appVersions:
+  v1:
+    image:
+      tag: "0.0.97"
+  v2:
+    image:
+      tag: "0.0.96"
+
 # Number of application replicas
 replicaCount: 3
 
@@ -89,6 +99,15 @@ modelService:
     repository: ghcr.io/doda25-team6/model-service
     tag: "v0.1.3"
     pullPolicy: IfNotPresent
+  # Canary versions for the model service (Istio subsets v1/v2)
+  # When enabled, the chart can run both versions behind the same Service.
+  versions:
+    v1:
+      image:
+        tag: "v0.1.3"
+    v2:
+      image:
+        tag: "v0.1.3"
   replicaCount: 3
   mountPath: "/app/output"
   service:
@@ -110,12 +129,21 @@ istio:
       hosts:
       - "*"
   app:
+    weights:
+      v1: 90
+      v2: 10
+    # Sticky sessions (header-based)
+    # Canary selection is done deterministically based on a header regex match.
+    # Default: users whose x-user ends with "0" go to v2 (≈10% if uniformly distributed).
+    sticky:
+      headerName: x-user
+      canaryUserRegex: ".*0$"
     destinationRule:
       host: app-service
       trafficPolicy:
         loadBalancer:
           consistentHash:
-            httpHeaderName: x-user
+            httpHeaderName: '{{ .Values.istio.app.sticky.headerName }}'
       subsets:
       - name: v1
         labels:
@@ -144,7 +172,7 @@ istio:
           weight: 10
   modelService:
     destinationRule:
-      host: model-service
+      host: '{{ include "project-app.fullname" . }}-model'
       subsets:
       - name: v1
         labels:
@@ -155,18 +183,18 @@ istio:
     virtualService:
       name: model-service-vs
       hosts:
-      - model-service
+      - '{{ include "project-app.fullname" . }}-model'
       http:
       - match:
         - sourceLabels:
             version: v2
         route:
         - destination:
-            host: model-service
+            host: '{{ include "project-app.fullname" . }}-model'
             subset: v2
       - route:
         - destination:
-            host: model-service
+            host: '{{ include "project-app.fullname" . }}-model'
             subset: v1
 
 # AlertManager email configuration
