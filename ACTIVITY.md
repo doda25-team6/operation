@@ -490,3 +490,23 @@ https://github.com/doda25-team6/operation/pull/51
 <br>
 </details>
 
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/52
+
+- Updated Istio routing to use actual chart service names
+- Added app and model v1/v2 deployments with version: v1|v2 labels to support Istio subsets.
+- Made gateway name + selector configurable in values.yaml.
+- Updated header based sticky canary sessions to select users deterministically.
+- Fixed model deployment storage behavior so it doesn’t require a PVC when persistence is disabled.
+- Refactored Istio DR/VS rendering.
+- Updated README with examples.
+
+<br>
+</details>
+
