@@ -30,13 +30,13 @@ secretValues:
 
 # Persistent storage configuration
 persistence:
-  enabled: false
+  enabled: true
   mountPath: "/usr/share/app-data"
   hostPath: "/mnt/shared"       # VirtualBox shared folder for multi-pod access
   # NFS-backed persistent configuration (used when persistence.enabled = true)
   nfs:
     server: "192.168.56.100"
-    path: "/mnt/model"
+    path: "/srv/nfs/model"
   # PVC settings
   accessMode: ReadWriteMany
   size: "1Gi"
@@ -169,3 +169,26 @@ istio:
             host: model-service
             subset: v1
 
+# AlertManager email configuration
+alertmanager:
+  email:
+    to: "your-email@gmail.com"      # Alert recipient
+    from: "alertmanager@gmail.com"    # Gmail account (also used for SMTP auth)
+# Grafana Visualization Configuration
+grafana:
+  enabled: true
+  image:
+    repository: grafana/grafana
+    tag: "10.2.3"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  # Default admin credentials
+  adminUser: admin
+  adminPassword: admin
+  # Persistent storage for Grafana data (dashboard edits, user preferences)
+  persistence:
+    enabled: false
+    size: "1Gi"
+    storageClass: ""

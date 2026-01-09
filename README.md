@@ -101,9 +101,9 @@ vagrant destroy -f
 
 **Option 1: Port forwarding**
 
-From your host:
+From ctrl:
 ```bash
-kubectl --kubeconfig=admin.conf port-forward -n kubernetes-dashboard svc/kubernetes-dashboard-kong-proxy 8443:443 --address 0.0.0.0
+kubectl port-forward -n kubernetes-dashboard svc/kubernetes-dashboard-kong-proxy 8443:443 --address 0.0.0.0
 ```
 
 Then access: https://192.168.56.100:8443
@@ -124,12 +124,28 @@ kubectl -n kubernetes-dashboard create token admin-user
 ```
 ### Accessing Prometheus UI
 
-From your host:
+From ctrl:
 ```bash
 kubectl port-forward --address 0.0.0.0 svc/project-project-app-prometheus 9090:9090
 ```
 
-Then access: https://192.168.56.100:9090
+Then access: http://192.168.56.100:9090
+
+### Accessing AlertManager UI
+
+From ctrl:
+```bash
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-alertmanager 9093:9093
+```
+
+Then access: http://192.168.56.100:9093
+
+AlertManager displays Prometheus alerts. To test, generate high traffic and alerts will appear when request rate exceeds 15/min for 2 minutes.
+
+**To configure email alerts:**
+1. Get Gmail App Password: https://myaccount.google.com/apppasswords (requires 2FA)
+2. Create Secret: `kubectl create secret generic alertmanager-smtp --from-literal=smtp-password='YOUR_APP_PASSWORD'`
+3. Deploy: `helm upgrade project . --set alertmanager.email.to=your@gmail.com --set alertmanager.email.from=your@gmail.com`
 
 ### Accessing App
 
@@ -139,12 +155,52 @@ Add to `/etc/hosts`:
 ```
 
 Access: http://project.local
-        https://project.local/metrics
+        http://project.local/metrics
 
 The application includes Prometheus monitoring with three types of metrics:
 - *Counter*: click_rate_total, navigation_requests_total{page}
 - *Gauge*: time_on_site_seconds
 - *Histogram*: page_load_seconds{page}
+
+### Accessing Grafana
+
+Grafana is automatically deployed with the application for metrics visualization.
+
+**Access via port-forward:**
+```bash
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-grafana 3000:3000
+```
+
+Then access: http://192.168.56.100:3000
+- Username: `admin`
+- Password: `admin`
+
+**Dashboard Location:**
+- Navigate to Dashboards → "Application Metrics"
+- Dashboard is automatically provisioned on deployment
+
+**Dashboard Panels (using Prometheus metric names):**
+1. **click_rate_total** - Time Series showing request rate (using `rate()` function)
+2. **time_on_site_seconds** - Gauge with color thresholds (red <10s, yellow 10-30s, green >30s)
+3. **navigation_requests_total** - Histogram showing page visit distribution
+4. **page_load_seconds (P95)** - Time Series showing 95th percentile load time (using `histogram_quantile()`)
+5. **click_rate_total (Total)** - Stat panel showing total prediction count
+6. **page_load_seconds (Statistics)** - Table with avg, P50, P95, P99 by page
+
+**Advanced Features:**
+- Uses PromQL functions: `rate()`, `histogram_quantile()`, `sum by()`
+- Aggregates metrics across pods where appropriate
+- Interactive timeframe selector (5m to 30d)
+- Auto-refresh intervals (5s to 5m)
+
+**Manual Dashboard Import (Optional):**
+
+If the dashboard isn't auto-loaded:
+1. Copy JSON from `charts/project-app/dashboards/application-metrics.json`
+2. In Grafana: Dashboards → Import → Paste JSON
+3. Select "Prometheus" as datasource
+4. Click Import
+
 
 
 ### Verification

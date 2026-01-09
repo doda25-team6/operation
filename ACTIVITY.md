@@ -375,7 +375,7 @@ This week, I worked on setting up Istio traffic management. This involved creati
  <details><summary> Sahana </summary>
 <p>
 
-**A4**:
+**A1-2**:
 
 This week, I worked on mostly debugging network errors encountered and fixing the versioning, java version and upgrading it to 25 to satisfy the requirements.
 https://github.com/doda25-team6/lib-version/pull/8
@@ -383,3 +383,110 @@ https://github.com/doda25-team6/app/pull/21
 
 <br>
 </details>
+
+-----
+
+### WEEK 6 (15/12 - 21/12)
+
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/45
+
+- Implemented a Grafana dashboard to display the metrics developed in Prometheus section. The dashboard includes gauges, histograms, stats, timeseries and tables.
+- Updated the README to include documenattion about Grafana. 
+
+<br>
+</details>
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/44
+
+Integrated helm chart changes after migration to kubernetes
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/46
+
+Added the A4 changes into charts
+
+<br>
+</details>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/47
+
+- Made a draft pr for rate limits for additional use case.  
+
+<br>
+</details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A4**:
+
+Last week, I put up a PR that implemented Istio traffic management. During code review, some mistakes were found, which I solved with changes to the Istio and K8s service resources this week. After these changes, the PR was merged. See https://github.com/doda25-team6/operation/pull/40.
+
+**A2**:
+
+I changed the Vagrantfile's number of cores for the controller node such that it follows the recommended value from the assignment text. See https://github.com/doda25-team6/operation/pull/43.
+
+**
+<br>
+</details>
+
+-----
+
+
+### WEEK 7 (22/12 - 28/12)
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/49
+
+- AlertManager deployment with Gmail SMTP support
+- PrometheusRule: HighRequestRate (>15 req/min for 2min)
+- SMTP password in Secret, emails configurable via Helm
+- Updated README
+
+<br>
+</details>
+
+### WEEK 8 (05/01 - 11/01)
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/51
+
+- Added the documentation for A4 into the docs folder
+- Changes into grafana to include v1 and v2 - continuous experimentation
+
+<br>
+</details>
+
