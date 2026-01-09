@@ -49,6 +49,24 @@ cd /vagrant/charts/project-app
 helm install project .
 ```
 
+
+
+
+### Istio traffic management (Gateway, VirtualService, DestinationRule)
+**Defaults (can be overridden):**
+- **Gateway name**: `istio.gateway.name` (default: `istio-gateway`)
+- **IngressGateway selector labels**: `istio.gateway.selector` (default: `{ istio: ingressgateway }`)
+
+#### Canary 90/10 + sticky sessions (header-based)
+
+- The chart routes to v1/v2 subsets with weights (default **90/10**) and uses a sticky header (default `x-user`) via consistent hashing.
+
+**Distribution across many users (should be ~90/10):**
+
+```bash
+for i in $(seq 1 1000); do curl -s -H "x-user: $RANDOM" -H "Connection: close" http://192.168.56.91/ >/dev/null; done
+```
+
 This will:
 1. Create 3 VMs (1 controller + 2 workers)
 2. Install Kubernetes v1.32.4
