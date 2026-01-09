@@ -375,7 +375,7 @@ This week, I worked on setting up Istio traffic management. This involved creati
  <details><summary> Sahana </summary>
 <p>
 
-**A4**:
+**A1-2**:
 
 This week, I worked on mostly debugging network errors encountered and fixing the versioning, java version and upgrading it to 25 to satisfy the requirements.
 https://github.com/doda25-team6/lib-version/pull/8
@@ -413,6 +413,7 @@ https://github.com/doda25-team6/operation/pull/44
 
 Integrated helm chart changes after migration to kubernetes
 
+**A4**:
 
 https://github.com/doda25-team6/operation/pull/46
 
@@ -472,3 +473,20 @@ https://github.com/doda25-team6/operation/pull/49
 
 <br>
 </details>
+
+### WEEK 8 (05/01 - 11/01)
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/51
+
+- Added the documentation for A4 into the docs folder
+- Changes into grafana to include v1 and v2 - continuous experimentation
+
+<br>
+</details>
+
