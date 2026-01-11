@@ -522,3 +522,16 @@ Fixes model-service pods stuck in Pending/Init state due to NFS mount failures.
 <br>
 </details>
 
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A1**:
+
+This week, I discovered and fixed some mistakes having to do with the model release workflow and the dynamic loading of model files. See https://github.com/doda25-team6/model-service/pull/13. Once these changes were made, I manually ran the workflow to release all model files.
+Also, a new model-service image should become available (through another triggered workflow) when a small pending PR ([pyproject version bump](https://github.com/doda25-team6/model-service/pull/14)) is merged and a tag is pushed.
+
+**
+<br>
+</details>
+
