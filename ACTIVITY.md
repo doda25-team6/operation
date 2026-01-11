@@ -510,3 +510,15 @@ https://github.com/doda25-team6/operation/pull/52
 <br>
 </details>
 
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+https://github.com/doda25-team6/operation/pull/50
+
+Fixes model-service pods stuck in Pending/Init state due to NFS mount failures.
+
+<br>
+</details>
+
