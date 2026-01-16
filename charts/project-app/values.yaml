@@ -31,13 +31,6 @@ ingress:
   path: "/"
   tls: false
 
-config:
-  exampleValue: "placeholder"
-  logLevel: "info"
-
-secretValues:
-  exampleSecret: "to-replace"
-
 # Persistent storage configuration
 persistence:
   enabled: true
@@ -97,17 +90,17 @@ modelService:
   enabled: true
   image:
     repository: ghcr.io/doda25-team6/model-service
-    tag: "v0.1.3"
+    tag: "v0.1.5"
     pullPolicy: IfNotPresent
   # Canary versions for the model service (Istio subsets v1/v2)
   # When enabled, the chart can run both versions behind the same Service.
   versions:
     v1:
       image:
-        tag: "v0.1.3"
+        tag: "v0.1.5"
     v2:
       image:
-        tag: "v0.1.3"
+        tag: "v0.1.5"
   replicaCount: 3
   mountPath: "/app/output"
   service:

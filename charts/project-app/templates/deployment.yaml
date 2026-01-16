@@ -25,15 +25,11 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: {{ include "project-app.fullname" . }}-config
-                key: model-host
-          - name: LOG_LEVEL
-            value: "{{ .Values.config.logLevel }}"
-          - name: EXAMPLE_VALUE
-            value: "{{ .Values.config.exampleValue }}"
+                key: MODEL_HOST
           - name: EXAMPLE_SECRET
             valueFrom:
               secretKeyRef:
-                name: {{ include "project-app.fullname" . }}
+                name: {{ include "project-app.fullname" . }}-secret
                 key: example-secret
 
         volumeMounts:
@@ -76,15 +72,11 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: {{ include "project-app.fullname" . }}-config
-                key: model-host
-          - name: LOG_LEVEL
-            value: "{{ .Values.config.logLevel }}"
-          - name: EXAMPLE_VALUE
-            value: "{{ .Values.config.exampleValue }}"
+                key: MODEL_HOST
           - name: EXAMPLE_SECRET
             valueFrom:
               secretKeyRef:
-                name: {{ include "project-app.fullname" . }}
+                name: {{ include "project-app.fullname" . }}-secret
                 key: example-secret
 
         volumeMounts:
