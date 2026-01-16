@@ -535,3 +535,17 @@ Also, a new model-service image should become available (through another trigger
 <br>
 </details>
 
+
+### WEEK 9 (12/01 - 18/01)
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/51
+- Build upon deployment.md in order to have a first version of the deployment documentation with workflow charts.
+
+<br>
+</details>
