@@ -549,3 +549,15 @@ https://github.com/doda25-team6/operation/pull/51
 
 <br>
 </details>
+
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A1-3**:
+
+After the model-service fixes from last week, I have changed a couple of things. First, the environment variables in the Helm templates were updated to match the expectations of serve_model.py, a new version of the model-service image was released, and the model-service image tag in values.yaml was changed to the latest one. Most of these changes can be found in https://github.com/doda25-team6/operation/pull/54.
+
+**
+<br>
+</details>
