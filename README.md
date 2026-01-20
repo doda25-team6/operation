@@ -179,11 +179,14 @@ docker compose logs -f app
 docker compose logs -f model-service
 
 # Test the API
-curl "http://localhost:8080/sms/check?message=Hello world"
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"sms": "Hello world"}' \
+  http://localhost:8080/sms/
 ```
 
 ### Step 4: Access Application
-- http://localhost:8080/sms/
+- **Web Interface**: http://localhost:8080/sms/
+- **API Endpoint**: POST to http://localhost:8080/sms/ with JSON body `{"sms": "your message"}`
 
 ### Step 5: Stop Services
 ```bash
