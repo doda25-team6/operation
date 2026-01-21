@@ -419,21 +419,26 @@ kubectl get pods -n istio-system
 
 This assignment demonstrates Istio service mesh capabilities including traffic management and observability.
 
-### Step 1: Verify Istio Installation
+### Step 1: Enable Istio Injection and deployment (from A3)
+
+```bash
+# Enable Istio sidecar injection for the namespace
+kubectl label ns default istio-injection=enabled
+
+# Deploy the application with Prometheus
+cd /vagrant/charts/project-app
+helm install project .
+
+# Note: This Helm chart deploys the application, model service, Prometheus, Grafana, and associated Istio resources (Gateway, VirtualServices, DestinationRules) for traffic management.
+```
+
+### Step 2: Verify Istio Installation
 ```bash
 # Check Istio components
 kubectl get pods -n istio-system
 
 # Verify sidecar injection
 kubectl get pods -o jsonpath='{.items[*].spec.containers[*].name}'
-```
-
-### Step 2: Configure Traffic Management
-```bash
-# Apply Istio configurations
-kubectl apply -f charts/project-app/istio-app-dr.yaml
-kubectl apply -f charts/project-app/istio-app-vs.yaml
-kubectl apply -f charts/project-app/istio-gateway.yaml
 ```
 
 ### Step 3: Test Service Mesh Features
