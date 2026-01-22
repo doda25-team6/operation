@@ -9,13 +9,16 @@ spec:
   hosts:
     {{- toYaml .Values.istio.app.virtualService.hosts | nindent 4 }}
   http:
-  # Canary users (sticky): if header matches, always route to v2
-  - match:
+
+  # - If the request already has the cookie, route 100% to the pinned subset.
+  # - Otherwise do a 90/10 split and set the cookie based on which route was taken.
+  - name: pinned-canary
+    match:
     - uri:
         prefix: /
       headers:
-        {{ .Values.istio.app.sticky.headerName }}:
-          regex: {{ .Values.istio.app.sticky.canaryUserRegex | quote }}
+        cookie:
+          regex: {{ printf ".*%s=v2.*" .Values.istio.app.canary.cookieName | quote }}
     route:
     - destination:
         host: {{ include "project-app.fullname" . }}-frontend
@@ -24,10 +27,14 @@ spec:
       response:
         add:
           x-routed-version: "v2"
-  # Default users: always route to v1
-  - match:
+
+  - name: pinned-stable
+    match:
     - uri:
         prefix: /
+      headers:
+        cookie:
+          regex: {{ printf ".*%s=v1.*" .Values.istio.app.canary.cookieName | quote }}
     route:
     - destination:
         host: {{ include "project-app.fullname" . }}-frontend
@@ -36,4 +43,28 @@ spec:
       response:
         add:
           x-routed-version: "v1"
+
+  - name: first-time-assignment
+    match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: {{ include "project-app.fullname" . }}-frontend
+        subset: v1
+      weight: {{ .Values.istio.app.weights.v1 }}
+      headers:
+        response:
+          add:
+            set-cookie: {{ printf "%s=v1; Path=%s; Max-Age=%d" .Values.istio.app.canary.cookieName .Values.istio.app.canary.cookiePath (int .Values.istio.app.canary.ttlSeconds) | quote }}
+            x-routed-version: "v1"
+    - destination:
+        host: {{ include "project-app.fullname" . }}-frontend
+        subset: v2
+      weight: {{ .Values.istio.app.weights.v2 }}
+      headers:
+        response:
+          add:
+            set-cookie: {{ printf "%s=v2; Path=%s; Max-Age=%d" .Values.istio.app.canary.cookieName .Values.istio.app.canary.cookiePath (int .Values.istio.app.canary.ttlSeconds) | quote }}
+            x-routed-version: "v2"
 {{- end }}

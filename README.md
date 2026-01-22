@@ -49,24 +49,6 @@ cd /vagrant/charts/project-app
 helm install project .
 ```
 
-
-
-
-### Istio traffic management (Gateway, VirtualService, DestinationRule)
-**Defaults (can be overridden):**
-- **Gateway name**: `istio.gateway.name` (default: `istio-gateway`)
-- **IngressGateway selector labels**: `istio.gateway.selector` (default: `{ istio: ingressgateway }`)
-
-#### Canary 90/10 + sticky sessions (header-based)
-
-- The chart routes to v1/v2 subsets with weights (default **90/10**) and uses a sticky header (default `x-user`) via consistent hashing.
-
-**Distribution across many users (should be ~90/10):**
-
-```bash
-for i in $(seq 1 1000); do curl -s -H "x-user: $RANDOM" -H "Connection: close" http://192.168.56.91/ >/dev/null; done
-```
-
 This will:
 1. Create 3 VMs (1 controller + 2 workers)
 2. Install Kubernetes v1.32.4
@@ -86,6 +68,38 @@ kubectl get nodes
 **Destroy cluster:**
 ```bash
 vagrant destroy -f
+```
+
+### Istio traffic management (Gateway, VirtualService, DestinationRule)
+**Defaults (can be overridden):**
+- **Gateway name**: `istio.gateway.name` (default: `istio-gateway`)
+- **IngressGateway selector labels**: `istio.gateway.selector` (default: `{ istio: ingressgateway }`)
+
+#### Canary 90/10 + sticky sessions
+
+- The chart implements **“assign once, then pin”**: 
+- First request gets assigned via **90/10** routing to v1/v2.
+- The response sets a cookie (default `exp_canary=v1|v2`).
+- Reloads send the cookie, and routing becomes **sticky per user**.
+
+**First request (observe assignment via `Set-Cookie`):**
+
+```bash
+curl -i http://192.168.56.91/
+```
+
+**Sticky follow-up:**
+
+```bash
+curl -i -c user.cookies http://192.168.56.91/
+curl -i -b user.cookies http://192.168.56.91/
+```
+
+**Force a version with a cookie:**
+
+```bash
+curl -i -H "Cookie: exp_canary=v1" http://192.168.56.91/
+curl -i -H "Cookie: exp_canary=v2" http://192.168.56.91/
 ```
 
 ---
