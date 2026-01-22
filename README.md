@@ -342,7 +342,7 @@ kubectl label ns default istio-injection=enabled
 ### Step 2: Deploy Application with Monitoring
 ```bash
 # Deploy using Helm chart
-cd charts/project-app
+cd /vagrant/charts/project-app
 helm install project .
 ```
 
