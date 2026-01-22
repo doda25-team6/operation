@@ -4,9 +4,9 @@ kind: DestinationRule
 metadata:
   name: app-dr
 spec:
-  host: {{ .Values.istio.app.destinationRule.host }}
+  host: {{ include "project-app.fullname" . }}-frontend
   trafficPolicy:
-    {{- toYaml .Values.istio.app.destinationRule.trafficPolicy | nindent 4 }}
+{{- tpl (toYaml .Values.istio.app.destinationRule.trafficPolicy) . | nindent 4 }}
   subsets:
   {{- toYaml .Values.istio.app.destinationRule.subsets | nindent 2 }}
 {{- end }}

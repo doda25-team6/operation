@@ -141,6 +141,38 @@ kubectl get nodes
 vagrant destroy -f
 ```
 
+### Istio traffic management (Gateway, VirtualService, DestinationRule)
+**Defaults (can be overridden):**
+- **Gateway name**: `istio.gateway.name` (default: `istio-gateway`)
+- **IngressGateway selector labels**: `istio.gateway.selector` (default: `{ istio: ingressgateway }`)
+
+#### Canary 90/10 + sticky sessions
+
+- The chart implements **“assign once, then pin”**: 
+- First request gets assigned via **90/10** routing to v1/v2.
+- The response sets a cookie (default `exp_canary=v1|v2`).
+- Reloads send the cookie, and routing becomes **sticky per user**.
+
+**First request (observe assignment via `Set-Cookie`):**
+
+```bash
+curl -i http://192.168.56.91/
+```
+
+**Sticky follow-up:**
+
+```bash
+curl -i -c user.cookies http://192.168.56.91/
+curl -i -b user.cookies http://192.168.56.91/
+```
+
+**Force a version with a cookie:**
+
+```bash
+curl -i -H "Cookie: exp_canary=v1" http://192.168.56.91/
+curl -i -H "Cookie: exp_canary=v2" http://192.168.56.91/
+```
+
 ---
 
 ## A1: Containerization
