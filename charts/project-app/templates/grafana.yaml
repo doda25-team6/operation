@@ -39,9 +39,9 @@ spec:
           mountPath: /etc/grafana/provisioning/dashboards
         # Actual dashboard JSON files
         - name: dashboards
-          mountPath: /var/lib/grafana/dashboards
+          mountPath: /var/lib/grafana/dashboards/app
         - name: dashboards-experimentation
-          mountPath: /var/lib/grafana/dashboards
+          mountPath: /var/lib/grafana/dashboards/experiment
         {{- if .Values.grafana.persistence.enabled }}
         # Persistent storage for user changes
         - name: storage
@@ -60,9 +60,15 @@ spec:
       - name: dashboards-config
         configMap:
           name: {{ include "project-app.fullname" . }}-grafana-dashboards
+          items:
+          - key: dashboards.yaml
+            path: dashboards.yaml
       - name: dashboards
         configMap:
           name: {{ include "project-app.fullname" . }}-grafana-dashboards
+          items:
+          - key: application-metrics.json
+            path: application-metrics.json
       - name: dashboards-experimentation
         configMap:
           name: {{ include "project-app.fullname" . }}-grafana-dashboards-experimentation
