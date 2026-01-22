@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "project-app.fullname" . }}-model
+  name: {{ include "project-app.fullname" . }}-model-v1
   labels:
     app: {{ include "project-app.fullname" . }}
     component: model
@@ -11,15 +11,17 @@ spec:
   selector:
     matchLabels:
       app: {{ include "project-app.fullname" . }}-model
+      version: v1
   template:
     metadata:
       labels:
         app: {{ include "project-app.fullname" . }}-model
         component: model
+        version: v1
     spec:
       containers:
       - name: model-service
-        image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.image.tag }}"
+        image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.versions.v1.image.tag }}"
         imagePullPolicy: {{ .Values.modelService.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.modelService.service.port }}
@@ -33,6 +35,53 @@ spec:
           mountPath: {{ .Values.modelService.mountPath }}
       volumes:
       - name: model-volume
+        {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
           claimName: "{{ if .Values.persistence.claimName }}{{ .Values.persistence.claimName }}{{ else }}{{ include "project-app.fullname" . }}-pvc{{ end }}"
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "project-app.fullname" . }}-model-v2
+  labels:
+    app: {{ include "project-app.fullname" . }}
+    component: model
+spec:
+  replicas: {{ .Values.modelService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "project-app.fullname" . }}-model
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: {{ include "project-app.fullname" . }}-model
+        component: model
+        version: v2
+    spec:
+      containers:
+      - name: model-service
+        image: "{{ .Values.modelService.image.repository }}:{{ .Values.modelService.versions.v2.image.tag }}"
+        imagePullPolicy: {{ .Values.modelService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.modelService.service.port }}
+        env:
+          - name: SERVER_PORT
+            value: "{{ .Values.modelService.service.port }}"
+          - name: MODEL_DIRECTORY
+            value: "{{ .Values.modelService.mountPath }}"
+        volumeMounts:
+        - name: model-volume
+          mountPath: {{ .Values.modelService.mountPath }}
+      volumes:
+      - name: model-volume
+        {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: "{{ if .Values.persistence.claimName }}{{ .Values.persistence.claimName }}{{ else }}{{ include "project-app.fullname" . }}-pvc{{ end }}"
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
 {{- end }}
