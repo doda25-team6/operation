@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "project-app.fullname" . }}-config
 data:
-  model-host: "http://{{ include "project-app.fullname" . }}-model:8081"
-  exampleValue: "{{ .Values.config.exampleValue }}"
-  logLevel: "{{ .Values.config.logLevel }}"
+  MODEL_HOST: "http://{{ include "project-app.fullname" . }}-model:8081"
+  MODEL_DIR: "{{ .Values.modelService.mountPath }}"
+  MODEL_URL: "https://github.com/doda25-team6/model-service/releases/download/v0.1.3/model-v0.1.3.joblib"
+  PREPROCESSOR_URL: "https://github.com/doda25-team6/model-service/releases/download/v0.1.3/preprocessor-v0.1.3.joblib"

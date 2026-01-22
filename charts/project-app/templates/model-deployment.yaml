@@ -26,10 +26,23 @@ spec:
         ports:
         - containerPort: {{ .Values.modelService.service.port }}
         env:
+          - name: MODEL_DIR
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "project-app.fullname" . }}-config
+                key: MODEL_DIR
+          - name: MODEL_URL
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "project-app.fullname" . }}-config
+                key: MODEL_URL
+          - name: PREPROCESSOR_URL
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "project-app.fullname" . }}-config
+                key: PREPROCESSOR_URL
           - name: SERVER_PORT
             value: "{{ .Values.modelService.service.port }}"
-          - name: MODEL_DIRECTORY
-            value: "{{ .Values.modelService.mountPath }}"
         volumeMounts:
         - name: model-volume
           mountPath: {{ .Values.modelService.mountPath }}
@@ -69,10 +82,23 @@ spec:
         ports:
         - containerPort: {{ .Values.modelService.service.port }}
         env:
+          - name: MODEL_DIR
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "project-app.fullname" . }}-config
+                key: MODEL_DIR
+          - name: MODEL_URL
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "project-app.fullname" . }}-config
+                key: MODEL_URL
+          - name: PREPROCESSOR_URL
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "project-app.fullname" . }}-config
+                key: PREPROCESSOR_URL
           - name: SERVER_PORT
             value: "{{ .Values.modelService.service.port }}"
-          - name: MODEL_DIRECTORY
-            value: "{{ .Values.modelService.mountPath }}"
         volumeMounts:
         - name: model-volume
           mountPath: {{ .Values.modelService.mountPath }}
