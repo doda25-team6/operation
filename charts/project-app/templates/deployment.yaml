@@ -31,19 +31,6 @@ spec:
               secretKeyRef:
                 name: {{ include "project-app.fullname" . }}-secret
                 key: example-secret
-
-        volumeMounts:
-        {{- if .Values.persistence.enabled }}
-        - name: shared-storage
-          mountPath: {{ .Values.persistence.mountPath }}
-        {{- end }}
-
-      volumes:
-      {{- if .Values.persistence.enabled }}
-      - name: shared-storage
-        persistentVolumeClaim:
-          claimName: "{{ if .Values.persistence.claimName }}{{ .Values.persistence.claimName }}{{ else }}{{ include "project-app.fullname" . }}-pvc{{ end }}"
-      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -79,15 +66,3 @@ spec:
                 name: {{ include "project-app.fullname" . }}-secret
                 key: example-secret
 
-        volumeMounts:
-        {{- if .Values.persistence.enabled }}
-        - name: shared-storage
-          mountPath: {{ .Values.persistence.mountPath }}
-        {{- end }}
-
-      volumes:
-      {{- if .Values.persistence.enabled }}
-      - name: shared-storage
-        persistentVolumeClaim:
-          claimName: "{{ if .Values.persistence.claimName }}{{ .Values.persistence.claimName }}{{ else }}{{ include "project-app.fullname" . }}-pvc{{ end }}"
-      {{- end }}

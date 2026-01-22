@@ -10,10 +10,10 @@ image:
 appVersions:
   v1:
     image:
-      tag: "0.0.97"
+      tag: "0.0.96"
   v2:
     image:
-      tag: "0.0.96"
+      tag: "0.0.97"
 
 # Number of application replicas
 replicaCount: 3
@@ -125,18 +125,18 @@ istio:
     weights:
       v1: 90
       v2: 10
-    # Sticky sessions (header-based)
-    # Canary selection is done deterministically based on a header regex match.
-    # Default: users whose x-user ends with "0" go to v2 (≈10% if uniformly distributed).
-    sticky:
-      headerName: x-user
-      canaryUserRegex: ".*0$"
+    # assign once (90/10), then pin the user via a cookie.
+    canary:
+      cookieName: exp_canary
+      ttlSeconds: 3600
+      cookiePath: /
     destinationRule:
-      host: app-service
+      host: '{{ include "project-app.fullname" . }}-frontend'
       trafficPolicy:
         loadBalancer:
           consistentHash:
-            httpHeaderName: '{{ .Values.istio.app.sticky.headerName }}'
+            # Optional: routing to a backend pod stable
+            httpHeaderName: cookie
       subsets:
       - name: v1
         labels:
@@ -150,19 +150,6 @@ istio:
       - istio-gateway
       hosts:
       - "*"
-      http:
-      - match:
-        - uri:
-            prefix: /
-        route:
-        - destination:
-            host: app-service
-            subset: v1
-          weight: 90
-        - destination:
-            host: app-service
-            subset: v2
-          weight: 10
   modelService:
     destinationRule:
       host: '{{ include "project-app.fullname" . }}-model'

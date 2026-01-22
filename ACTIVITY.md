@@ -490,3 +490,74 @@ https://github.com/doda25-team6/operation/pull/51
 <br>
 </details>
 
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/52
+
+- Updated Istio routing to use actual chart service names
+- Added app and model v1/v2 deployments with version: v1|v2 labels to support Istio subsets.
+- Made gateway name + selector configurable in values.yaml.
+- Updated header based sticky canary sessions to select users deterministically.
+- Fixed model deployment storage behavior so it doesn’t require a PVC when persistence is disabled.
+- Refactored Istio DR/VS rendering.
+- Updated README with examples.
+
+<br>
+</details>
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+https://github.com/doda25-team6/operation/pull/50
+
+Fixes model-service pods stuck in Pending/Init state due to NFS mount failures.
+
+<br>
+</details>
+
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A1**:
+
+This week, I discovered and fixed some mistakes having to do with the model release workflow and the dynamic loading of model files. See https://github.com/doda25-team6/model-service/pull/13. Once these changes were made, I manually ran the workflow to release all model files.
+Also, a new model-service image should become available (through another triggered workflow) when a small pending PR ([pyproject version bump](https://github.com/doda25-team6/model-service/pull/14)) is merged and a tag is pushed.
+
+**
+<br>
+</details>
+
+
+### WEEK 9 (12/01 - 18/01)
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/51
+- Build upon deployment.md in order to have a first version of the deployment documentation with workflow charts.
+
+<br>
+</details>
+
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A1-3**:
+
+After the model-service fixes from last week, I have changed a couple of things. First, the environment variables in the Helm templates were updated to match the expectations of serve_model.py, a new version of the model-service image was released, and the model-service image tag in values.yaml was changed to the latest one. Most of these changes can be found in https://github.com/doda25-team6/operation/pull/54.
+
+**
+<br>
+</details>
