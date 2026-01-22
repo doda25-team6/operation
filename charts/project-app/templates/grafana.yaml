@@ -40,6 +40,8 @@ spec:
         # Actual dashboard JSON files
         - name: dashboards
           mountPath: /var/lib/grafana/dashboards
+        - name: dashboards-experimentation
+          mountPath: /var/lib/grafana/dashboards
         {{- if .Values.grafana.persistence.enabled }}
         # Persistent storage for user changes
         - name: storage
@@ -61,6 +63,9 @@ spec:
       - name: dashboards
         configMap:
           name: {{ include "project-app.fullname" . }}-grafana-dashboards
+      - name: dashboards-experimentation
+        configMap:
+          name: {{ include "project-app.fullname" . }}-grafana-dashboards-experimentation
       {{- if .Values.grafana.persistence.enabled }}
       - name: storage
         persistentVolumeClaim:
