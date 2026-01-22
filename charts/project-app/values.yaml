@@ -90,17 +90,17 @@ modelService:
   enabled: true
   image:
     repository: ghcr.io/doda25-team6/model-service
-    tag: "v0.1.5"
+    tag: "v0.1.7"
     pullPolicy: IfNotPresent
   # Canary versions for the model service (Istio subsets v1/v2)
   # When enabled, the chart can run both versions behind the same Service.
   versions:
     v1:
       image:
-        tag: "v0.1.5"
+        tag: "v0.1.7"
     v2:
       image:
-        tag: "v0.1.5"
+        tag: "v0.1.7"
   replicaCount: 3
   mountPath: "/app/output"
   service:
