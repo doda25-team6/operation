@@ -563,7 +563,7 @@ After the model-service fixes from last week, I have changed a couple of things.
 ### WEEK 9 (19/01 - 25/01)
 
 <br>
- <details><summary> Anhar </summary>
+ <details><summary> Valantis </summary>
 <p>
 
 **A4**:
