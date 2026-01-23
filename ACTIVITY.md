@@ -566,17 +566,31 @@ After the model-service fixes from last week, I have changed a couple of things.
  <details><summary> Valantis </summary>
 <p>
 
-**A4**:
-
-https://github.com/doda25-team6/operation/pull/57
-
-- Fix second Grafana dashboard setup in order to load correctly
-
 **A3**:
 
 https://github.com/doda25-team6/model-service/pull/15
 
 - Fix preprocessor paths and bumb model service to new version. Now the classifier works correctly and no more 500 server errors exist
+
+**A4- Continuous Experimentation**:
+
+https://github.com/doda25-team6/operation/pull/57
+
+- Fix second Grafana dashboard setup in order to load correctly
+
+https://github.com/doda25-team6/model-service/pull/16
+
+- Added confidence scores via predict_proba.
+
+https://github.com/doda25-team6/app/pull/25
+
+- Added confidence score display, new metrics for the experiment and bumb version
+
+https://github.com/doda25-team6/operation/pull/58
+
+- update docker paths for local testing
+- bump versions in values.yaml
+- update the experimentation dashboard to include new metrics for comparison
 
 <br>
 </details>
