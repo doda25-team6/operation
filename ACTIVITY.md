@@ -456,7 +456,7 @@ I changed the Vagrantfile's number of cores for the controller node such that it
 -----
 
 
-### WEEK 7 (22/12 - 28/12)
+### WEEK 22/12 - 28/12
 
 <br> 
  <details><summary> Valantis </summary>
@@ -474,7 +474,9 @@ https://github.com/doda25-team6/operation/pull/49
 <br>
 </details>
 
-### WEEK 8 (05/01 - 11/01)
+-----
+
+### WEEK 7 (05/01 - 11/01)
 
 <br> 
  <details><summary> Sahana </summary>
@@ -517,7 +519,12 @@ https://github.com/doda25-team6/operation/pull/52
 **A3**:
 https://github.com/doda25-team6/operation/pull/50
 
-Fixes model-service pods stuck in Pending/Init state due to NFS mount failures.
+- Fixes model-service pods stuck in Pending/Init state due to NFS mount failures.
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/51
+- Build upon deployment.md in order to have a first version of the deployment documentation with workflow charts.
 
 <br>
 </details>
@@ -535,20 +542,9 @@ Also, a new model-service image should become available (through another trigger
 <br>
 </details>
 
+-----
 
-### WEEK 9 (12/01 - 18/01)
-
-<br> 
- <details><summary> Valantis </summary>
-<p>
-
-**A4**:
-
-https://github.com/doda25-team6/operation/pull/51
-- Build upon deployment.md in order to have a first version of the deployment documentation with workflow charts.
-
-<br>
-</details>
+### WEEK 8 (12/01 - 18/01)
 
 <br>
  <details><summary> Anhar </summary>
@@ -561,3 +557,28 @@ After the model-service fixes from last week, I have changed a couple of things.
 **
 <br>
 </details>
+
+-----
+
+### WEEK 9 (19/01 - 25/01)
+
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/57
+
+- Fix second Grafana dashboard setup in order to load correctly
+
+**A3**:
+
+https://github.com/doda25-team6/model-service/pull/15
+
+- Fix preprocessor paths and bumb model service to new version. Now the classifier works correctly and no more 500 server errors exist
+
+<br>
+</details>
+
+-----
