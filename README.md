@@ -1,10 +1,19 @@
 # SMS Spam Detection System - Implementation Overview
 
+This repository contains the operational setup for the SMS Spam Detection system, covering assignments A1 through A4 with complete deployment instructions.
+
+## Repository Links
+
+- **[app](https://github.com/doda25-team6/app)** - Spring Boot frontend and API gateway
+- **[model-service](https://github.com/doda25-team6/model-service)** - Flask ML backend with scikit-learn
+- **[lib-version](https://github.com/doda25-team6/lib-version)** - Version-aware Maven library
+- **[operation](https://github.com/doda25-team6/operation)** - Docker Compose orchestration (this repository)
+
 ## Repository Links (Tag: a1)
-- **[app](https://github.com/doda25-team6/app/tree/a1)** - Spring Boot frontend and API gateway
-- **[model-service](https://github.com/doda25-team6/model-service/tree/a1)** - Flask ML backend with scikit-learn
-- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a1)** - Version-aware Maven library
-- **[operation](https://github.com/doda25-team6/operation/tree/a1)** - Docker Compose orchestration (this repository)
+- **[app](https://github.com/doda25-team6/app/tree/a1)**
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a1)**
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a1)**
+- **[operation](https://github.com/doda25-team6/operation/tree/a1)** 
 
 ## Repository Links (Tag: a2)
 - **[app](https://github.com/doda25-team6/app/tree/a2)**
@@ -17,6 +26,68 @@
 - **[model-service](https://github.com/doda25-team6/model-service/tree/a3)** 
 - **[lib-version](https://github.com/doda25-team6/lib-version/tree/a3)**
 - **[operation](https://github.com/doda25-team6/operation/tree/a3)**
+
+## Repository Links (Tag: a4)
+- **[app](https://github.com/doda25-team6/app/tree/a4)**
+- **[model-service](https://github.com/doda25-team6/model-service/tree/a4)** 
+- **[lib-version](https://github.com/doda25-team6/lib-version/tree/a4)**
+- **[operation](https://github.com/doda25-team6/operation/tree/a4)**
+
+## Prerequisistes
+
+### Required Tools
+
+1. **Git**: Version control system
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install git
+
+# macOS
+brew install git
+```
+
+2. **Docker & Docker Compose**: Container runtime
+```bash
+# Ubuntu/Debian
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+sudo apt install docker-compose-plugin
+# Restart session or run: newgrp docker
+```
+
+3. **Java 25 & Maven**: For building Java applications
+```bash
+sudo apt install openjdk-25-jdk maven
+```
+
+4. **Python 3**: For machine learning service
+```bash
+sudo apt install python3 python3-pip python3-flask python3-scikit-learn python3-joblib
+```
+
+5. **Vagrant & VirtualBox**: For Kubernetes cluster provisioning (A2)
+```bash
+sudo apt install virtualbox vagrant
+```
+
+6. **kubectl & Helm**: Kubernetes tools (A2-A4)
+```bash
+# kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
+# Helm
+curl https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
+tar -zxvf helm.tar.gz && sudo mv linux-amd64/helm /usr/local/bin/
+```
+
+### Environment Variables
+Set these environment variables for GitHub Package Registry access:
+```bash
+export GITHUB_USERNAME="your-github-username"
+export GITHUB_TOKEN="your-github-personal-access-token"
+```
 
 ## Quick Start
 
@@ -70,9 +141,93 @@ kubectl get nodes
 vagrant destroy -f
 ```
 
+### Istio traffic management (Gateway, VirtualService, DestinationRule)
+**Defaults (can be overridden):**
+- **Gateway name**: `istio.gateway.name` (default: `istio-gateway`)
+- **IngressGateway selector labels**: `istio.gateway.selector` (default: `{ istio: ingressgateway }`)
+
+#### Canary 90/10 + sticky sessions
+
+- The chart implements **“assign once, then pin”**: 
+- First request gets assigned via **90/10** routing to v1/v2.
+- The response sets a cookie (default `exp_canary=v1|v2`).
+- Reloads send the cookie, and routing becomes **sticky per user**.
+
+**First request (observe assignment via `Set-Cookie`):**
+
+```bash
+curl -i http://192.168.56.91/
+```
+
+**Sticky follow-up:**
+
+```bash
+curl -i -c user.cookies http://192.168.56.91/
+curl -i -b user.cookies http://192.168.56.91/
+```
+
+**Force a version with a cookie:**
+
+```bash
+curl -i -H "Cookie: exp_canary=v1" http://192.168.56.91/
+curl -i -H "Cookie: exp_canary=v2" http://192.168.56.91/
+```
+
 ---
 
-## A2: Kubernetes Cluster Setup Details
+## A1: Containerization
+
+This assignment demonstrates containerization of the SMS Spam Detection system using Docker Compose.
+
+### Step 1: Build lib-version Library
+```bash
+# Set environment variables for GitHub access
+export GITHUB_USERNAME="your-username"
+export GITHUB_TOKEN="your-token"
+
+# Build the shared library
+cd lib-version
+mvn clean compile
+mvn test
+cd ..
+```
+
+### Step 2: Build and Start Services
+```bash
+# Navigate to operation directory
+cd operation
+
+# Build and start all services
+docker compose up --build
+```
+
+### Step 3: Verify Deployment
+```bash
+# Check running containers
+docker compose ps
+
+# View service logs
+docker compose logs -f app
+docker compose logs -f model-service
+
+# Test the API
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"sms": "Hello world"}' \
+  http://localhost:8080/sms/
+```
+
+### Step 4: Access Application
+- **Web Interface**: http://localhost:8080/sms/
+- **API Endpoint**: POST to http://localhost:8080/sms/ with JSON body `{"sms": "your message"}`
+
+### Step 5: Stop Services
+```bash
+docker compose down
+```
+
+## A2: Kubernetes Cluster Provisioning
+
+### Kubernetes Cluster Setup Details
 
 ### IP Allocations
 
@@ -97,13 +252,64 @@ vagrant destroy -f
 - **Package Manager**: Helm 3.x
 - **Storage**: NFS server on controller
 
+
+### Step 1: Provision Cluster
+```bash
+# Navigate to operation directory
+cd operation
+
+# Start Kubernetes cluster (takes 10-15 minutes)
+vagrant up
+```
+
+This creates:
+- 1 control plane node (192.168.56.100)
+- 2 worker nodes (192.168.56.101, 192.168.56.102)
+
+### Step 2: Configure Cluster Services
+```bash
+# Run finalization playbook
+cd ansible
+ansible-playbook -u vagrant -i 192.168.56.100, finalization.yml
+cd ..
+```
+
+### Step 3: Configure kubectl
+```bash
+# Set kubectl context
+export KUBECONFIG=$(pwd)/admin.conf
+
+# Verify cluster
+kubectl get nodes
+kubectl get pods -A
+```
+
+### Step 4: Verify Installation
+After `vagrant up` completes, verify all services:
+
+```bash
+vagrant ssh ctrl
+
+# All nodes should be Ready
+kubectl get nodes
+```
+```bash
+# Check cluster components
+kubectl get pods -n metallb-system # Load balancer
+kubectl get pods -n ingress-nginx # Ingress controller
+kubectl get pods -n istio-system # Service mesh
+istioctl version
+kubectl get pods -n kubernetes-dashboard # Dashboard
+kubectl get svc --all-namespaces | grep LoadBalancer # Check Loadbalancer services
+```
+
 ### Accessing Kubernetes Dashboard
 
 **Option 1: Port forwarding**
 
-From your host:
+From ctrl:
 ```bash
-kubectl --kubeconfig=admin.conf port-forward -n kubernetes-dashboard svc/kubernetes-dashboard-kong-proxy 8443:443 --address 0.0.0.0
+kubectl port-forward -n kubernetes-dashboard svc/kubernetes-dashboard-kong-proxy 8443:443 --address 0.0.0.0
 ```
 
 Then access: https://192.168.56.100:8443
@@ -122,14 +328,59 @@ Access: http://dashboard.local
 vagrant ssh ctrl
 kubectl -n kubernetes-dashboard create token admin-user
 ```
+
+## A3: Monitoring and Operations
+
+This assignment deploys monitoring and operational tools using Helm charts.
+
+### Step 1: Enable Istio Injection
+```bash
+# Enable sidecar injection for default namespace
+kubectl label ns default istio-injection=enabled
+```
+
+### Step 2: Deploy Application with Monitoring
+```bash
+# Deploy using Helm chart
+cd /vagrant/charts/project-app
+helm install project .
+```
+
+### Step 3: Access Monitoring Stack
+```bash
+# Get service IPs
+kubectl get svc -A
+
+# Access URLs (replace with actual IPs from above):
+# Grafana: http://192.168.56.90/grafana/
+# Prometheus: http://192.168.56.90/prometheus/
+# Kubernetes Dashboard: http://192.168.56.90/kubernetes-dashboard/
+```
+
 ### Accessing Prometheus UI
 
-From your host:
+From ctrl:
 ```bash
 kubectl port-forward --address 0.0.0.0 svc/project-project-app-prometheus 9090:9090
 ```
 
-Then access: https://192.168.56.100:9090
+Then access: http://192.168.56.100:9090
+
+### Accessing AlertManager UI
+
+From ctrl:
+```bash
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-alertmanager 9093:9093
+```
+
+Then access: http://192.168.56.100:9093
+
+AlertManager displays Prometheus alerts. To test, generate high traffic and alerts will appear when request rate exceeds 15/min for 2 minutes.
+
+**To configure email alerts:**
+1. Get Gmail App Password: https://myaccount.google.com/apppasswords (requires 2FA)
+2. Create Secret: `kubectl create secret generic alertmanager-smtp --from-literal=smtp-password='YOUR_APP_PASSWORD'`
+3. Deploy: `helm upgrade project . --set alertmanager.email.to=your@gmail.com --set alertmanager.email.from=your@gmail.com`
 
 ### Accessing App
 
@@ -139,57 +390,149 @@ Add to `/etc/hosts`:
 ```
 
 Access: http://project.local
-        https://project.local/metrics
+        http://project.local/metrics
 
 The application includes Prometheus monitoring with three types of metrics:
 - *Counter*: click_rate_total, navigation_requests_total{page}
 - *Gauge*: time_on_site_seconds
 - *Histogram*: page_load_seconds{page}
 
+### Accessing Grafana
 
-### Verification
+Grafana is automatically deployed with the application for metrics visualization.
 
-After `vagrant up` completes, verify all services:
-
+**Access via port-forward:**
 ```bash
-vagrant ssh ctrl
-
-# All nodes should be Ready
-kubectl get nodes
-
-# Check MetalLB
-kubectl get pods -n metallb-system
-
-# Check Dashboard
-kubectl get pods -n kubernetes-dashboard
-
-# Check Istio
-kubectl get pods -n istio-system
-istioctl version
-
-# Check LoadBalancer services
-kubectl get svc --all-namespaces | grep LoadBalancer
+kubectl port-forward --address 0.0.0.0 svc/project-project-app-grafana 3000:3000
 ```
 
-### Troubleshooting
+Then access: http://192.168.56.100:3000
+- Username: `admin`
+- Password: `admin`
 
-**Pods not starting:**
+**Dashboard Location:**
+- Navigate to Dashboards → "Application Metrics"
+- Dashboard is automatically provisioned on deployment
+
+**Dashboard Panels (using Prometheus metric names):**
+1. **click_rate_total** - Time Series showing request rate (using `rate()` function)
+2. **time_on_site_seconds** - Gauge with color thresholds (red <10s, yellow 10-30s, green >30s)
+3. **navigation_requests_total** - Histogram showing page visit distribution
+4. **page_load_seconds (P95)** - Time Series showing 95th percentile load time (using `histogram_quantile()`)
+5. **click_rate_total (Total)** - Stat panel showing total prediction count
+6. **page_load_seconds (Statistics)** - Table with avg, P50, P95, P99 by page
+
+**Advanced Features:**
+- Uses PromQL functions: `rate()`, `histogram_quantile()`, `sum by()`
+- Aggregates metrics across pods where appropriate
+- Interactive timeframe selector (5m to 30d)
+- Auto-refresh intervals (5s to 5m)
+
+**Manual Dashboard Import (Optional):**
+
+If the dashboard isn't auto-loaded:
+1. Copy JSON from `charts/project-app/dashboards/application-metrics.json`
+2. In Grafana: Dashboards → Import → Paste JSON
+3. Select "Prometheus" as datasource
+4. Click Import
+
+
+### Step 4: Verify Monitoring
+```bash
+# Check application pods
+kubectl get pods
+
+# Check monitoring pods
+kubectl get pods -n monitoring
+kubectl get pods -n istio-system
+```
+
+## A4: Service Mesh
+
+This assignment demonstrates Istio service mesh capabilities including traffic management and observability.
+
+### Step 1: Enable Istio Injection and deployment (from A3)
+
+```bash
+# Enable Istio sidecar injection for the namespace
+kubectl label ns default istio-injection=enabled
+
+# Deploy the application with Prometheus
+cd /vagrant/charts/project-app
+helm install project .
+
+# Note: This Helm chart deploys the application, model service, Prometheus, Grafana, and associated Istio resources (Gateway, VirtualServices, DestinationRules) for traffic management.
+```
+
+### Step 2: Verify Istio Installation
+```bash
+# Check Istio components
+kubectl get pods -n istio-system
+
+# Verify sidecar injection
+kubectl get pods -o jsonpath='{.items[*].spec.containers[*].name}'
+```
+
+### Step 3: Test Service Mesh Features
+```bash
+# Check virtual services
+kubectl get virtualservice -n default
+
+# Check destination rules
+kubectl get destinationrule -n default
+
+# Check gateway
+kubectl get gateway -n default
+```
+
+### Step 4: Access Application via Istio
+- **Istio Gateway**: http://192.168.56.91/sms/
+- **Ingress**: http://192.168.56.90/sms/
+
+#### Port Forwarding for Istio Gateway
+```bash
+# Access Istio Gateway directly
+kubectl port-forward --address 0.0.0.0 svc/istio-gateway 8080:80 -n istio-system
+# Then access: http://localhost:8080/sms/
+```
+
+
+
+## Troubleshooting
+
+### Common Issues
+
+#### Docker Issues
+- **Permission denied**: Add user to docker group: `sudo usermod -aG docker $USER`
+- **Port already in use**: Change ports in `docker-compose.yml`
+- **Build fails**: Ensure Docker daemon is running
+
+#### Kubernetes Issues
+- **VT-x not available**: Enable virtualization in BIOS
+- **Vagrant fails**: Run `vagrant destroy -f` then `vagrant up`
+- **Ansible fails**: Check SSH connectivity to VMs
+- **Pods not starting:**
 ```bash
 kubectl describe pod <pod-name> -n <namespace>
 kubectl logs <pod-name> -n <namespace>
 ```
-
-**MetalLB not assigning IPs:**
+- **MetalLB not assigning IPs:**
 ```bash
 kubectl describe ipaddresspool -n metallb-system
 kubectl logs -n metallb-system -l app=metallb
 ```
-
-**Istio issues:**
+- **Istio issues:**
 ```bash
 istioctl analyze
 kubectl get pods -n istio-system
 ```
+
+#### General Issues
+- **GitHub authentication**: Set `GITHUB_USERNAME` and `GITHUB_TOKEN`
+- **Out of disk space**: Clean up with `docker system prune -a`
+- **Network issues**: Check firewall settings
+
+
 
 ### Configuration
 
@@ -205,7 +548,22 @@ CTRL_CPUS=4 CTRL_MEMORY=8192 vagrant up
 
 ---
 
-## Feature Implementation Details
+### Useful Commands
+
+```bash
+# Docker cleanup
+docker compose down --remove-orphans
+docker system prune -a
+
+# Kubernetes cleanup
+kubectl delete ns project
+helm uninstall project
+
+# Vagrant cleanup
+vagrant destroy -f
+```
+
+<!-- ## Feature Implementation Details
 
 ## F1: Version-aware Library
 
@@ -302,4 +660,4 @@ A few changes have been made to remove the hard-coded use of the model by the mo
 
 The Dockerfile does not have an environment variable for the model file location. This is defined in the Docker Compose file only, to simplify the configuration.
 
-In `serve_model.py`, logic has been added to check whether the model can be loaded in the container, or if it has to be downloaded from the GitHub releases page in the `model-service` repository. It has been chosen to use a global variable `clf` in `serve_model.py`, instead of using Flask's app config, as it's expected to work well given the relatively small scale of the project.
+In `serve_model.py`, logic has been added to check whether the model can be loaded in the container, or if it has to be downloaded from the GitHub releases page in the `model-service` repository. It has been chosen to use a global variable `clf` in `serve_model.py`, instead of using Flask's app config, as it's expected to work well given the relatively small scale of the project. -->

@@ -4,7 +4,7 @@ kind: DestinationRule
 metadata:
   name: model-service-dr
 spec:
-  host: {{ .Values.istio.modelService.destinationRule.host }}
+  host: {{ tpl (.Values.istio.modelService.destinationRule.host | toString) . }}
   subsets:
   {{- toYaml .Values.istio.modelService.destinationRule.subsets | nindent 2 }}
 {{- end }}

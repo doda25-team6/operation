@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.istio.modelService.virtualService.name }}
 spec:
   hosts:
-    {{- toYaml .Values.istio.modelService.virtualService.hosts | nindent 4 }}
+{{- tpl (toYaml .Values.istio.modelService.virtualService.hosts) . | nindent 2 }}
   http:
-  {{- toYaml .Values.istio.modelService.virtualService.http | nindent 2 }}
+{{- tpl (toYaml .Values.istio.modelService.virtualService.http) . | nindent 2 }}
 {{- end }}

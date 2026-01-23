@@ -119,12 +119,19 @@
         state: present
         update_cache: yes # update package list
 
+    # Create NFS-exportable directory (not VirtualBox shared folder)
+    - name: Create NFS model directory
+      ansible.builtin.file:
+        path: /srv/nfs/model
+        state: directory
+        mode: '0777'
+
     # All nodes can share the mounted model
     # CIDR notation is used to define the range of allowed IPs
     - name: Export the shared model files in /etc/exports
       ansible.builtin.lineinfile:
         path: /etc/exports
-        line: '/mnt/model 192.168.56.0/24(rw,sync,no_subtree_check,no_root_squash)'
+        line: '/srv/nfs/model 192.168.56.0/24(rw,sync,no_subtree_check,no_root_squash)'
         state: present
       notify:
         - Restart NFS Service # Signal NFS restart if file is modified

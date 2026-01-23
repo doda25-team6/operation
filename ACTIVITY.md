@@ -375,7 +375,7 @@ This week, I worked on setting up Istio traffic management. This involved creati
  <details><summary> Sahana </summary>
 <p>
 
-**A4**:
+**A1-2**:
 
 This week, I worked on mostly debugging network errors encountered and fixing the versioning, java version and upgrading it to 25 to satisfy the requirements.
 https://github.com/doda25-team6/lib-version/pull/8
@@ -383,3 +383,233 @@ https://github.com/doda25-team6/app/pull/21
 
 <br>
 </details>
+
+-----
+
+### WEEK 6 (15/12 - 21/12)
+
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/45
+
+- Implemented a Grafana dashboard to display the metrics developed in Prometheus section. The dashboard includes gauges, histograms, stats, timeseries and tables.
+- Updated the README to include documenattion about Grafana. 
+
+<br>
+</details>
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/44
+
+Integrated helm chart changes after migration to kubernetes
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/46
+
+Added the A4 changes into charts
+
+<br>
+</details>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/47
+
+- Made a draft pr for rate limits for additional use case.  
+
+<br>
+</details>
+
+<br>
+
+ <details><summary> Anhar </summary>
+<p>
+
+**A4**:
+
+Last week, I put up a PR that implemented Istio traffic management. During code review, some mistakes were found, which I solved with changes to the Istio and K8s service resources this week. After these changes, the PR was merged. See https://github.com/doda25-team6/operation/pull/40.
+
+**A2**:
+
+I changed the Vagrantfile's number of cores for the controller node such that it follows the recommended value from the assignment text. See https://github.com/doda25-team6/operation/pull/43.
+
+**
+<br>
+</details>
+
+-----
+
+
+### WEEK 22/12 - 28/12
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/operation/pull/49
+
+- AlertManager deployment with Gmail SMTP support
+- PrometheusRule: HighRequestRate (>15 req/min for 2min)
+- SMTP password in Secret, emails configurable via Helm
+- Updated README
+
+<br>
+</details>
+
+-----
+
+### WEEK 7 (05/01 - 11/01)
+
+<br> 
+ <details><summary> Sahana </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/51
+
+- Added the documentation for A4 into the docs folder
+- Changes into grafana to include v1 and v2 - continuous experimentation
+
+<br>
+</details>
+
+
+<br> 
+ <details><summary> Cem </summary>
+<p>
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/52
+
+- Updated Istio routing to use actual chart service names
+- Added app and model v1/v2 deployments with version: v1|v2 labels to support Istio subsets.
+- Made gateway name + selector configurable in values.yaml.
+- Updated header based sticky canary sessions to select users deterministically.
+- Fixed model deployment storage behavior so it doesn’t require a PVC when persistence is disabled.
+- Refactored Istio DR/VS rendering.
+- Updated README with examples.
+
+<br>
+</details>
+
+<br> 
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+https://github.com/doda25-team6/operation/pull/50
+
+- Fixes model-service pods stuck in Pending/Init state due to NFS mount failures.
+
+**A4**:
+
+https://github.com/doda25-team6/operation/pull/51
+- Build upon deployment.md in order to have a first version of the deployment documentation with workflow charts.
+
+<br>
+</details>
+
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A1**:
+
+This week, I discovered and fixed some mistakes having to do with the model release workflow and the dynamic loading of model files. See https://github.com/doda25-team6/model-service/pull/13. Once these changes were made, I manually ran the workflow to release all model files.
+Also, a new model-service image should become available (through another triggered workflow) when a small pending PR ([pyproject version bump](https://github.com/doda25-team6/model-service/pull/14)) is merged and a tag is pushed.
+
+**
+<br>
+</details>
+
+-----
+
+### WEEK 8 (12/01 - 18/01)
+
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A1-3**:
+
+After the model-service fixes from last week, I have changed a couple of things. First, the environment variables in the Helm templates were updated to match the expectations of serve_model.py, a new version of the model-service image was released, and the model-service image tag in values.yaml was changed to the latest one. Most of these changes can be found in https://github.com/doda25-team6/operation/pull/54.
+
+**
+<br>
+</details>
+
+-----
+
+### WEEK 9 (19/01 - 25/01)
+
+<br>
+ <details><summary> Valantis </summary>
+<p>
+
+**A3**:
+
+https://github.com/doda25-team6/model-service/pull/15
+
+- Fix preprocessor paths and bumb model service to new version. Now the classifier works correctly and no more 500 server errors exist
+
+**A4- Continuous Experimentation**:
+
+https://github.com/doda25-team6/operation/pull/57
+
+- Fix second Grafana dashboard setup in order to load correctly
+
+https://github.com/doda25-team6/model-service/pull/16
+
+- Added confidence scores via predict_proba.
+
+https://github.com/doda25-team6/app/pull/25
+
+- Added confidence score display, new metrics for the experiment and bumb version
+
+https://github.com/doda25-team6/operation/pull/58
+
+- update docker paths for local testing
+- bump versions in values.yaml
+- update the experimentation dashboard to include new metrics for comparison
+
+<br>
+</details>
+
+<br>
+ <details><summary> Sahana </summary>
+<p>
+
+**A1**:
+
+Fixed F11 which was not implemented properly:
+https://github.com/doda25-team6/lib-version/pull/9
+
+**Documentation - README**:
+
+Updated the README file so it is more structured and documented: 
+https://github.com/doda25-team6/operation/pull/56
+
+<br>
+</details>
+
+-----

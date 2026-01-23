@@ -12,6 +12,17 @@ data:
       scrape_interval: {{ .Values.prometheus.scrapeInterval }}
       evaluation_interval: {{ .Values.prometheus.evaluationInterval }}
 
+    # AlertManager configuration
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets:
+          - '{{ include "project-app.fullname" . }}-alertmanager:9093'
+
+    # Load alert rules
+    rule_files:
+      - '/etc/prometheus/rules/*.rules'
+
     scrape_configs:
 
       # Dynamic service discovery for application metrics endpoints
@@ -35,6 +46,8 @@ data:
           target_label: service
         - source_labels: [__meta_kubernetes_namespace]
           target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_label_version]
+          target_label: version
         - target_label: __metrics_path__
           replacement: {{ quote .path }}
 
