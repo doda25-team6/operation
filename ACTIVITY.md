@@ -595,4 +595,21 @@ https://github.com/doda25-team6/operation/pull/58
 <br>
 </details>
 
+<br>
+ <details><summary> Sahana </summary>
+<p>
+
+**A1**:
+
+Fixed F11 which was not implemented properly:
+https://github.com/doda25-team6/lib-version/pull/9
+
+**Documentation - README**:
+
+Updated the README file so it is more structured and documented: 
+https://github.com/doda25-team6/operation/pull/56
+
+<br>
+</details>
+
 -----
