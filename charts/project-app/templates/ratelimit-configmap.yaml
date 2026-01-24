@@ -4,18 +4,20 @@ kind: ConfigMap
 metadata:
   name: {{ include "project-app.fullname" . }}-ratelimit
   labels:
-    {{- include "project-app.labels" . | nindent 4 }}
+    app: {{ include "project-app.fullname" . }}
+    component: ratelimit
 data:
   config.yaml: |
-    domain: project-app
+    domain: ratelimit
     descriptors:
-      - key: scope
-        value: limited
-        descriptors:
-          - key: x-user
-            rate_limit:
-              unit: minute
-              requests_per_unit: {{ .Values.rateLimit.requests }}
+      - key: generic_key
+        value: "global"
+        rate_limit:
+          unit: {{ .Values.rateLimit.unit | default "minute" }}
+          requests_per_unit: {{ .Values.rateLimit.limits.default.requestsPerUnit | default 100 }}
+      - key: PATH
+        value: "/sms"
+        rate_limit:
+          unit: {{ .Values.rateLimit.unit | default "minute" }}
+          requests_per_unit: {{ .Values.rateLimit.limits.sms.requestsPerUnit | default 6 }}
 {{- end }}
-
-
