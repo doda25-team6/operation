@@ -13,10 +13,8 @@ services:
     environment:
       SERVER_PORT: "${SERVER_PORT:-8081}"
       MODEL_DIR: /app/output
-      
-      # Can optionally put DOWNLOAD_URL here.
-      # Then remove hard-coded URL from serve_model.py and load the env var.
-      # DOWNLOAD_URL: ...
+      MODEL_URL: "file:///app/output/model.joblib"
+      PREPROCESSOR_URL: "file:///app/output/preprocessor.joblib"
 
     # Without this, the model-service would always download 
     # since output would be empty.

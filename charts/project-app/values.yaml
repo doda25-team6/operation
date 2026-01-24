@@ -10,10 +10,10 @@ image:
 appVersions:
   v1:
     image:
-      tag: "0.0.96"
+      tag: "0.0.97"  # Stable version without confidence scores
   v2:
     image:
-      tag: "0.0.97"
+      tag: "0.0.98"  # Experimental version with confidence scores
 
 # Number of application replicas
 replicaCount: 3
@@ -90,17 +90,17 @@ modelService:
   enabled: true
   image:
     repository: ghcr.io/doda25-team6/model-service
-    tag: "v0.1.9"
+    tag: "v0.2.0"
     pullPolicy: IfNotPresent
   # Canary versions for the model service (Istio subsets v1/v2)
   # When enabled, the chart can run both versions behind the same Service.
   versions:
     v1:
       image:
-        tag: "v0.1.9"
+        tag: "v0.2.0"
     v2:
       image:
-        tag: "v0.1.9"
+        tag: "v0.2.0"
   replicaCount: 3
   mountPath: "/app/output"
   service:

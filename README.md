@@ -413,7 +413,7 @@ Then access: https://192.168.56.100:8443
 
 Add to `/etc/hosts`:
 ```
-192.168.56.91 dashboard.local
+192.168.56.90 dashboard.local
 ```
 
 Access: http://dashboard.local
@@ -481,7 +481,7 @@ AlertManager displays Prometheus alerts. To test, generate high traffic and aler
 
 Add to `/etc/hosts`:
 ```
-192.168.56.90 project.local
+192.168.56.91 project.local
 ```
 
 Access: http://project.local
