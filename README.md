@@ -173,6 +173,101 @@ curl -i -H "Cookie: exp_canary=v1" http://192.168.56.91/
 curl -i -H "Cookie: exp_canary=v2" http://192.168.56.91/
 ```
 
+
+# Rate Limiting (Istio IngressGateway + Redis)
+
+This section explains the configuration, testing, and verification steps for the rate limiting implementation.
+
+## Configuration
+
+Rate limiting policies are defined in the `values.yaml` file. 
+
+### Settings Breakdown
+
+* **Domain:** `ratelimit`
+* **Unit:** `minute`
+* **SMS Bucket (`/sms*`):** Limited to **6** requests per minute.
+* **Default Bucket (Fallback):** Limited to **50** requests per minute for all other paths.
+
+```yaml
+# Global rate limiting configuration
+rateLimit:
+  unit: minute
+
+limits:
+  sms:
+    requestsPerUnit: 20
+
+  default:
+    requestsPerUnit: 60
+```
+
+---
+
+## Testing Rate Limits
+
+You can verify the rate limits by running the following `curl` loops.
+
+### 1. Test SMS Bucket (`/sms`)
+
+**Expected Behavior:** The first 20 requests return `200`, and subsequent requests return `429`.
+
+```bash
+for i in $(seq 1 40); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" "http://192.168.56.91/sms/")
+  echo "call $i: HTTP $code"
+done
+
+```
+
+### 2. Test Default/Global Bucket (`/`)
+
+**Expected Behavior:** The first 60 requests return `200`, and subsequent requests return `429`.
+
+```bash
+for i in $(seq 1 70); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" "http://192.168.56.91/")
+  echo "call $i: HTTP $code"
+done
+
+```
+
+
+## Verification (Redis Counters)
+
+To inspect the actual counters in Redis, access the cluster via the VM and execute the Redis CLI commands.
+
+### 1. Identify the Redis Pod
+
+Find the name of the rate limit Redis pod:
+
+```bash
+kubectl get pods -n default | grep redis
+
+```
+
+### 2. Access Redis CLI
+
+Open a shell inside the Redis container:
+
+```bash
+kubectl exec -it -n default {step1_podname} -- redis-cli
+
+```
+
+### 4. Check Keys and Values
+
+Once inside the Redis CLI prompt, you can list keys and check specific counters:
+
+```bash
+# List all keys to find the rate limit key
+keys *
+
+# Get the value of a specific key
+get <keyname>
+
+```
+
 ---
 
 ## A1: Containerization

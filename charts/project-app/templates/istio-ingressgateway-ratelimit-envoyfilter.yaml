@@ -1,0 +1,93 @@
+{{- if and .Values.istio.enabled .Values.rateLimit.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ include "project-app.fullname" . }}-filter-ratelimit
+  namespace: {{ .Values.rateLimit.ingressGatewayNamespace | default "istio-system" }}
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    # Ensure the ingressgateway has a reachable upstream cluster for the ratelimit gRPC service (8081).
+    - applyTo: CLUSTER
+      match:
+        context: GATEWAY
+      patch:
+        operation: ADD
+        value:
+          name: ratelimit_cluster
+          type: STRICT_DNS
+          connect_timeout: 0.25s
+          lb_policy: ROUND_ROBIN
+          http2_protocol_options: {}
+          load_assignment:
+            cluster_name: ratelimit_cluster
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: {{ printf "%s-ratelimit.%s.svc.cluster.local" (include "project-app.fullname" .) .Release.Namespace }}
+                          port_value: 8081
+
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          portNumber: 8080
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.ratelimit
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.ratelimit.v3.RateLimit
+            domain: {{ .Values.rateLimit.domain | default "ratelimit" }}
+            failure_mode_deny: true
+            timeout: 10s
+            rate_limit_service:
+              grpc_service:
+                envoy_grpc:
+                  cluster_name: ratelimit_cluster
+                  authority: {{ printf "%s-ratelimit.%s.svc.cluster.local" (include "project-app.fullname" .) .Release.Namespace }}
+              transport_api_version: V3
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ include "project-app.fullname" . }}-filter-ratelimit-svc
+  namespace: {{ .Values.rateLimit.ingressGatewayNamespace | default "istio-system" }}
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    - applyTo: VIRTUAL_HOST
+      match:
+        context: GATEWAY
+        routeConfiguration:
+          vhost:
+            name: "*:80"
+      patch:
+        operation: MERGE
+        value:
+          rate_limits:
+            - actions:
+                - generic_key:
+                    descriptor_value: "global"
+            # Map any /sms* requests into the fixed descriptor PATH=/sms
+            - actions:
+                - header_value_match:
+                    descriptor_key: "PATH"
+                    descriptor_value: "/sms"
+                    headers:
+                      - name: ":path"
+                        prefix_match: "/sms"
+{{- end }}
+
+

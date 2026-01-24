@@ -1,0 +1,55 @@
+{{- if .Values.rateLimit.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "project-app.fullname" . }}-ratelimit
+  labels:
+    app: {{ include "project-app.fullname" . }}
+    component: ratelimit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "project-app.fullname" . }}
+      component: ratelimit
+  template:
+    metadata:
+      labels:
+        app: {{ include "project-app.fullname" . }}
+        component: ratelimit
+    spec:
+      containers:
+        - name: ratelimit
+          image: docker.io/envoyproxy/ratelimit@sha256:508ff08079a2f9257a5c87699cfac69bb7f897ac8e98dcf1cd04f6ce02885e7b
+          command: ["/bin/ratelimit"]
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: grpc
+              containerPort: 8081
+            - name: http
+              containerPort: 8080
+          env:
+            - name: RUNTIME_ROOT
+              value: /data
+            - name: RUNTIME_SUBDIRECTORY
+              value: config
+            - name: LOG_LEVEL
+              value: info
+            - name: RATELIMIT_CONFIG_TYPE
+              value: FILE
+            - name: REDIS_URL
+              value: {{ include "project-app.fullname" . }}-ratelimit-redis:6379
+            - name: REDIS_SOCKET_TYPE
+              value: tcp
+            - name: USE_STATSD
+              value: "false"
+          volumeMounts:
+            - name: config
+              mountPath: /data/config
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "project-app.fullname" . }}-ratelimit
+{{- end }}
+

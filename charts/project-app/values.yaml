@@ -177,6 +177,20 @@ istio:
             host: '{{ include "project-app.fullname" . }}-model'
             subset: v1
 
+# Global rate limiting
+rateLimit:
+  enabled: true
+  ingressGatewayNamespace: istio-system
+  domain: ratelimit
+  unit: minute
+  # /sms* bucket
+  limits:
+    sms:
+      requestsPerUnit: 20
+    # Fallback
+    default:
+      requestsPerUnit: 60
+
 # AlertManager email configuration
 alertmanager:
   email:
