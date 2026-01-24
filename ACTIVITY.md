@@ -612,4 +612,24 @@ https://github.com/doda25-team6/operation/pull/56
 <br>
 </details>
 
+
+
+<br>
+ <details><summary> Cem </summary>
+<p>
+
+**A4**:
+
+[a4-rate-limiting](https://github.com/doda25-team6/operation/pull/59) 
+
+- A4 Additional use case, rate limiting is done in this pr.
+- Created global rate limiting using redis and update readme to include rate limiting and testing. 
+
+**A1**:
+[fix/release-image_PR1](https://github.com/doda25-team6/app/pull/28) [PR2](https://github.com/doda25-team6/app/pull/27) [PR3](https://github.com/doda25-team6/app/pull/26) 
+
+- PR 26/27/28 all aimed to solve the issue of workflow errors. Final work-around was to update the branch protection rules, given that creating a new account for it to work was unnecessary for the scope of the project.
+<br>
+</details>
+
 -----
