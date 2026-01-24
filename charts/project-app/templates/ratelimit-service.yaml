@@ -4,7 +4,8 @@ kind: Service
 metadata:
   name: {{ include "project-app.fullname" . }}-ratelimit
   labels:
-    {{- include "project-app.labels" . | nindent 4 }}
+    app: {{ include "project-app.fullname" . }}
+    component: ratelimit
 spec:
   type: ClusterIP
   ports:
@@ -17,9 +18,7 @@ spec:
       targetPort: 8080
       protocol: TCP
   selector:
-    app.kubernetes.io/name: {{ include "project-app.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: ratelimit
+    app: {{ include "project-app.fullname" . }}
+    component: ratelimit
 {{- end }}
-
 
