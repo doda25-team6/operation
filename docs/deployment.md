@@ -48,6 +48,55 @@ The SMS Spam Detection System is a microservices-based application deployed on a
 
 ### High-Level Architecture
 
+```mermaid
+graph TD;
+  client([client]) -. Istio <br> IngressGateway .-> ingress;
+
+  subgraph cluster [Kubernetes Cluster]
+    ingress[Gateway <br> istio-gateway <br> 192.168.56.91\:80]
+    vs1[App VirtualService]
+    app_pod1[App Pod v1 <br> \:8080]
+    app_pod2[App Pod v2 <br> \:8080]
+    vs2["Model VirtualService <br> v1->v1, v2->v2"]
+    model_pod1[Model-service Pod v1 <br> \:8081]
+    model_pod2[Model-service Pod v2 <br> \:8081]
+    nfs[NFS Storage <br> Model Files]
+
+    ingress -->|routing rule| vs1
+    vs1 -->|90%| app_pod1
+    vs1 -->|10%| app_pod2
+    app_pod1 --> vs2
+    app_pod2 --> vs2
+    vs2 --> model_pod1
+    vs2 --> model_pod2
+    model_pod1 --> nfs
+    model_pod2 --> nfs
+
+    %% Hidden link to force monitoring to the bottom
+    nfs ~~~ monitoring
+
+    %% Nested Subgraph
+    subgraph monitoring [Monitoring Stack]
+      prom[Prometheus <br> \:9090] --> graf[Grafana <br> \:3000]
+      prom --> |scrapes /metrics|app1[App Pod v1 <br> \:8080]
+      prom --> |scrapes /metrics|app2[App Pod v2 <br> \:8080]
+      alert[AlertManager <br> \:9093]
+    end
+  end
+
+  %% Styling
+  classDef plain fill:#ddd,stroke:#fff,stroke-width:4px,color:#000;
+  classDef k8s fill:#326ce5,stroke:#fff,stroke-width:4px,color:#fff;
+  classDef cluster_style fill:#fff,stroke:#bbb,stroke-width:2px,color:#326ce5;
+  classDef monitor_style fill:#fff,stroke:#eee,stroke-width:1px,color:#326ce5;
+
+  class client plain;
+  class ingress,app_pod1,app_pod2,model_pod1,model_pod2 k8s;
+  class cluster cluster_style;
+  class monitoring monitor_style;
+
+```
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              EXTERNAL ACCESS                                │
