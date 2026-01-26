@@ -1,7 +1,7 @@
 # Extension Proposal
 
 ## Identified Shortcoming
-The current model training and release pipeline (F9 workflow) produces a deployable model artifact but lacks automated integration testing between the trained model and the app-service. This leads to potential runtime errors when new models are deployed, as the app-service may fail to load or use the model correctly, discovered only after deployment.
+The current model training and release pipeline (F9 workflow) produces a deployable model artifact but lacks automated integration testing between the trained model and the app-service. This leads to potential runtime errors when new models are deployed, as the app-service may fail to load or use the model correctly, discovered only after deployment. For example, a new model version may change the model-service response format or prediction semantics, while the app-service still assumes the previous contract, resulting in runtime failures or silently incorrect behavior.
 
 ## Effect
 - Higher risk of production incidents or degraded user experience after model updates.
