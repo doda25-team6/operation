@@ -461,6 +461,15 @@ kubectl port-forward --address 0.0.0.0 svc/project-project-app-prometheus 9090:9
 
 Then access: http://192.168.56.100:9090
 
+**Option 2: Via hostname**
+
+Add to `/etc/hosts`:
+```
+192.168.56.90 prometheus.local
+```
+
+Access: http://prometheus.local
+
 ### Accessing AlertManager UI
 
 From ctrl:
@@ -470,7 +479,22 @@ kubectl port-forward --address 0.0.0.0 svc/project-project-app-alertmanager 9093
 
 Then access: http://192.168.56.100:9093
 
-AlertManager displays Prometheus alerts. To test, generate high traffic and alerts will appear when request rate exceeds 15/min for 2 minutes.
+**Option 2: Via hostname**
+
+Add to `/etc/hosts`:
+```
+192.168.56.90 alertmanager.local
+```
+
+Access: http://alertmanager.local
+
+AlertManager displays Prometheus alerts. To test, generate high traffic and alerts will appear when request rate exceeds 15/min for 1 minute.
+
+**Generate Test Traffic:**
+```bash
+# Sends 90 requests at ~60/min (triggers alert)
+for i in {1..90}; do curl -s "http://192.168.56.91/" > /dev/null; echo "Request $i sent"; sleep 1.0; done
+```
 
 **To configure email alerts:**
 1. Get Gmail App Password: https://myaccount.google.com/apppasswords (requires 2FA)
@@ -505,6 +529,15 @@ Then access: http://192.168.56.100:3000
 - Username: `admin`
 - Password: `admin`
 
+**Option 2: Via hostname**
+
+Add to `/etc/hosts`:
+```
+192.168.56.90 grafana.local
+```
+
+Access: http://grafana.local
+
 **Dashboard Location:**
 - Navigate to Dashboards → "Application Metrics"
 - Dashboard is automatically provisioned on deployment
@@ -531,15 +564,29 @@ If the dashboard isn't auto-loaded:
 3. Select "Prometheus" as datasource
 4. Click Import
 
+**Experimentation Dashboard (A4):**
+- Name: "Continuous Experimentation Dashboard"
+- Focus: Comparing v1 (Stable) vs v2 (Canary) performance
+
+**Dashboard Location:**
+- Navigate to Dashboards → "Continuous Experimentation Dashboard"
+- Dashboard is automatically provisioned on deployment
+
+**Dashboard Panels:**
+1. **Request Rate Comparison** - Traffic volume split between versions
+2. **Response Time Comparison (P95)** - Gauge showing if v2 is slower/faster
+3. **Average Prediction Confidence** - Gauge tracking model certainty (Green > 80%)
+4. **Low Confidence Predictions** - Rate of predictions < 70% confidence
+5. **User Engagement** - Time on site comparison (sticky session duration)
+
+**Manual Dashboard Import (Optional):**
+1. Copy JSON from `charts/project-app/dashboards/experimentation-dashboard.json`
+2. Follow the same import steps as above.
+
 
 ### Step 4: Verify Monitoring
 ```bash
-# Check application pods
 kubectl get pods
-
-# Check monitoring pods
-kubectl get pods -n monitoring
-kubectl get pods -n istio-system
 ```
 
 ## A4: Service Mesh
