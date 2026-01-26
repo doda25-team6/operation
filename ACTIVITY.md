@@ -651,3 +651,22 @@ I started converting a diagram in deployment.md to one created with Mermaid. See
 </details>
 
 -----
+
+### WEEK 10 (26/01 - 27/01)
+
+<br>
+ <details><summary> Valantis </summary>
+<p>
+
+https://github.com/doda25-team6/operation/pull/63
+
+- Rewrote the continuous experimentation document to match our new feature stating our hypothesis, new metrics, screenshot, etc.
+- Added ingress for prometheus, grafana and alertmanager
+- Kubernetes dashboard should work now through ingress without throwing 401 error during token authentication
+- Changed alert rule from 2m to 1m to save time during demo
+- Updated README with info about the new ingresses, the new dashboard in CE and code to test alert manager
+
+<br>
+</details>
+
+-----
