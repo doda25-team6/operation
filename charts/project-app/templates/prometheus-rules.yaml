@@ -12,11 +12,11 @@ data:
       rules:
       - alert: HighRequestRate
         expr: rate(navigation_requests_total[1m]) * 60 > 15
-        for: 2m
+        for: 1m
         labels:
           severity: warning
           component: frontend
         annotations:
           summary: "High request rate detected"
-          description: "Service is receiving {{ `{{ $value | humanize }}` }} requests per minute, which exceeds the threshold of 15 requests/minute for 2 minutes."
+          description: "Service is receiving {{ `{{ $value | humanize }}` }} requests per minute, which exceeds the threshold of 15 requests/minute for 1 minute."
           dashboard: "http://project.local/sms/"
