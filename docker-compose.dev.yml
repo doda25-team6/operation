@@ -1,7 +1,12 @@
 services:
 
   model-service:
-    image: ${MODEL_IMAGE}
+    build: 
+      context: ../model-service
+      dockerfile: Dockerfile
+      args:
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: model-service
     restart: unless-stopped
     expose:
@@ -16,8 +21,17 @@ services:
     # since output would be empty.
     volumes:
       - ../model-service/output:/app/output
+    
+
+
   app:
-    image: ${APP_IMAGE}
+    build:
+      context: ../app
+      dockerfile: Dockerfile
+      args:
+        # F2: GitHub Package Registry authentication for lib-version
+        GITHUB_USERNAME: ${GITHUB_USERNAME}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: app
     restart: unless-stopped
     ports:
@@ -26,3 +40,4 @@ services:
       - model-service
     environment:
       MODEL_HOST: "${MODEL_HOST:-http://model-service:8081}"
+    
