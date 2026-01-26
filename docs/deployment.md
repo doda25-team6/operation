@@ -37,7 +37,7 @@ The SMS Spam Detection System is a microservices-based application deployed on a
 
 | Repository | Purpose | Link |
 |------------|---------|------|
-| [operation](https://github.com/doda25-team6/operation) | Helm charts, Ansible, Kubernetes manifests | Main deployment |
+| [operation](https://github.com/doda25-team6/operation) | Helm charts, Vagrant, Ansible, Kubernetes manifests | Main deployment |
 | [app](https://github.com/doda25-team6/app) | Spring Boot frontend service | `ghcr.io/doda25-team6/app` |
 | [model-service](https://github.com/doda25-team6/model-service) | Flask ML prediction service | `ghcr.io/doda25-team6/model-service` |
 | [lib-version](https://github.com/doda25-team6/lib-version) | Version-aware Maven library | GitHub Packages |
@@ -78,7 +78,7 @@ The SMS Spam Detection System is a microservices-based application deployed on a
 │                    ▼                              ▼                         │
 │       ┌─────────────────────┐        ┌─────────────────────┐                │
 │       │   App Service v1    │        │   App Service v2    │                │
-│       │   (3 replicas)      │        │   (1 replica)       │                │
+│       │   (3 replicas)      │        │   (3 replicas)      │                │
 │       │   :8080             │        │   :8080             │                │
 │       └──────────┬──────────┘        └──────────┬──────────┘                │
 │                  │                              │                           │
@@ -86,7 +86,7 @@ The SMS Spam Detection System is a microservices-based application deployed on a
 │                  ▼                              ▼                           │
 │       ┌─────────────────────┐        ┌─────────────────────┐                │
 │       │  Model Service v1   │        │  Model Service v2   │                │
-│       │  (3 replicas)       │        │  (1 replica)        │                │
+│       │  (3 replicas)       │        │  (3 replicas)       │                │
 │       │  :8081              │        │  :8081              │                │
 │       └──────────┬──────────┘        └──────────┬──────────┘                │
 │                  │                              │                           │
@@ -138,11 +138,15 @@ The SMS Spam Detection System is a microservices-based application deployed on a
 │  └─────────────────────────┘                                                 │
 │  ┌─────────────────────────┐         ┌─────────────────────────┐             │
 │  │ project-project-app-v2  │────────▶│ (same service, v2 pods) │             │
-│  │ (app v2, 1 replica)     │         └─────────────────────────┘             │
+│  │ (app v2, 3 replicas)    │         └─────────────────────────┘             │
 │  └─────────────────────────┘                                                 │
 │  ┌─────────────────────────┐         ┌─────────────────────────┐             │
 │  │ project-project-app-    │────────▶│ -model :8081            │             │
 │  │ model (v1, 3 replicas)  │         └─────────────────────────┘             │
+│  └─────────────────────────┘                                                 │
+|  ┌─────────────────────────┐         ┌─────────────────────────┐             │
+│  │ project-project-app-    │────────▶│ (same service, v2 pods) │             │
+│  │ model (v2, 3 replicas)  │         └─────────────────────────┘             │
 │  └─────────────────────────┘                                                 │
 │  ┌─────────────────────────┐         ┌─────────────────────────┐             │
 │  │ -prometheus             │────────▶│ -prometheus :9090       │             │
@@ -227,7 +231,7 @@ The SMS Spam Detection System is a microservices-based application deployed on a
     ┌───────────────────────────────────────────┐
     │  VIRTUALSERVICE (app-entry-service)       │
     │                                           │
-    │  IF sticky session header matches:        │
+    │  IF sticky session header/cookie matches: │
     │    → Route to consistent version          │
     │  ELSE:                                    │
     │    → 90% chance: v1                       │
@@ -286,7 +290,7 @@ The SMS Spam Detection System is a microservices-based application deployed on a
 | 1 | **IngressGateway** | Accepts external traffic on port 80 |
 | 2 | **Gateway** | Matches host `*` and routes to VirtualService |
 | 3 | **VirtualService** | **90/10 split** - routes 90% to v1, 10% to v2 |
-| 4 | **DestinationRule** | **Sticky session** - consistent hash on `x-user` header |
+| 4 | **DestinationRule** | **Sticky session** - consistent hash on `x-user` header / same cookie |
 | 5 | **Model VirtualService** | **Version consistency** - v1 app → v1 model, v2 app → v2 model |
 
 ---
@@ -330,7 +334,7 @@ http:
     weight: 10   # ← 10% of traffic (canary)
 ```
 
-### Sticky Sessions Implementation
+### Sticky Sessions Implementation (Header-based)
 
 ```yaml
 # Location: templates/istio-app-dr.yaml
@@ -592,7 +596,7 @@ Rate limiting is implemented to prevent service abuse:
 # Regular request (follows 90/10 split)
 curl http://192.168.56.91/
 
-# Sticky session (always same version for alice)
+# Sticky session (header-based, always same version for alice)
 curl -H "x-user: alice" http://192.168.56.91/
 
 # Verify version routing
