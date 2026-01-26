@@ -632,4 +632,22 @@ https://github.com/doda25-team6/operation/pull/56
 <br>
 </details>
 
+<br>
+ <details><summary> Anhar </summary>
+<p>
+
+**A1:**
+
+I changed the Docker Compose model files URLs to enable reliable download (previous URLs didn't work for me, while they did for other team members). Moreover, .env.example was updated with more environment variables (relating to model file and image URLs). See https://github.com/doda25-team6/operation/pull/60.
+
+**A4:**
+
+Some inconsistencies (new implementations made some descriptions outdated) were found while reading deployment.md, so these were resolved. See https://github.com/doda25-team6/operation/pull/61.
+
+I started converting a diagram in deployment.md to one created with Mermaid. See https://github.com/doda25-team6/operation/pull/62.
+
+**
+<br>
+</details>
+
 -----
