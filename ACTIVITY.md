@@ -658,6 +658,8 @@ I started converting a diagram in deployment.md to one created with Mermaid. See
  <details><summary> Valantis </summary>
 <p>
 
+**A3-A4:**
+
 https://github.com/doda25-team6/operation/pull/63
 
 - Rewrote the continuous experimentation document to match our new feature stating our hypothesis, new metrics, screenshot, etc.
