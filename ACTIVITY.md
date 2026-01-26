@@ -686,4 +686,23 @@ https://github.com/doda25-team6/operation/pull/65
 <br>
 </details>
 
+<br>
+ <details><summary> Cem </summary>
+<p>
+
+**A3:**
+
+[fix/prometheus-pv](https://github.com/doda25-team6/operation/pull/66)
+
+- Created a pv to fix persistence issues of prometheus when the flag is set to true
+- Deleted persistence in Grafana to avoid confusions
+
+[fix/docker-compose-model-urls](https://github.com/doda25-team6/operation/pull/64)
+- Added restart policy to images
+- Used env variables for model urls
+- Used the current final images rather than build on dockerfiles
+- Archived old docker-compose as .dev
+<br>
+</details>
+
 -----
