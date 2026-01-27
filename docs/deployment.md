@@ -18,7 +18,7 @@ This document describes the complete deployment architecture of the SMS Spam Det
 
 ## System Overview
 
-The SMS Spam Detection System is a microservices-based application deployed on a Kubernetes cluster provisioned via Vagrant. It uses Istio for traffic management, enabling canary deployments and A/B testing.
+The SMS Spam Detection System is a microservices-based application deployed on a Kubernetes cluster provisioned via Vagrant. It uses Istio for traffic management, enabling canary deployments, rate-limiting and A/B testing.
 
 ### Technology Stack
 
@@ -61,8 +61,16 @@ graph TD;
     model_pod1[Model-service Pod v1 <br> \:8081]
     model_pod2[Model-service Pod v2 <br> \:8081]
     nfs[NFS Storage <br> Model Files]
-
-    ingress -->|routing rule| vs1
+    
+    subgraph ratelimit [Ratelimit]
+      ratelimit_redis[Redis]  
+      ratelimit_service[Ratelimit Service]
+      ratelimit_redis --> ratelimit_service
+      ratelimit_service --> ratelimit_redis
+    end
+    ingress ~~~ ratelimit
+    ingress <--> ratelimit
+    ingress  -->|routing rule| vs1
     vs1 -->|90%| app_pod1
     vs1 -->|10%| app_pod2
     app_pod1 --> vs2
@@ -91,13 +99,12 @@ graph TD;
   classDef monitor_style fill:#fff,stroke:#eee,stroke-width:1px,color:#326ce5;
 
   class client plain;
-  class ingress,app_pod1,app_pod2,model_pod1,model_pod2 k8s;
+  class ingress,ratelimit_service,app_pod1,app_pod2,model_pod1,model_pod2 k8s;
   class cluster cluster_style;
-  class monitoring monitor_style;
+  class monitoring,ratelimit monitor_style;
 
 ```
-
-The architecture implements a canary deployment pattern where external traffic enters through the Istio IngressGateway at 192.168.56.91. The Gateway forwards requests to a VirtualService which performs intelligent routing: first-time visitors are randomly assigned to either v1 (90%) or v2 (10%) and receive a cookie (`exp_canary`), while returning visitors are routed consistently to their assigned version based on this cookie. Both app versions communicate with their corresponding model-service versions through a separate VirtualService that ensures version consistency (v1 app calls v1 model, v2 app calls v2 model). All model-service pods share access to trained ML models stored on NFS-backed persistent storage mounted from the controller node. The monitoring stack operates independently, with Prometheus scraping metrics exclusively from the frontend pods, feeding data to Grafana dashboards for visualization and AlertManager for notification when request rates exceed defined thresholds.
+The architecture implements a canary deployment pattern where external traffic enters through the Istio IngressGateway at 192.168.56.91. Before the request is routed, the IngressGateway’s Envoy applies global rate limiting via an EnvoyFilter, it makes a gRPC call to a ratelimit service, which reads Redis backend to decide whether to allow or deny the request. The Gateway forwards requests to a VirtualService which performs intelligent routing: first-time visitors are randomly assigned to either v1 (90%) or v2 (10%) and receive a cookie (`exp_canary`), while returning visitors are routed consistently to their assigned version based on this cookie. Both app versions communicate with their corresponding model-service versions through a separate VirtualService that ensures version consistency (v1 app calls v1 model, v2 app calls v2 model). All model-service pods share access to trained ML models stored on NFS-backed persistent storage mounted from the controller node. The monitoring stack operates independently, with Prometheus scraping metrics exclusively from the frontend pods, feeding data to Grafana dashboards for visualization and AlertManager for notification when request rates exceed defined thresholds.
 
 ### Infrastructure Layout
 
@@ -111,7 +118,7 @@ The architecture implements a canary deployment pattern where external traffic e
 
 ## Kubernetes Resources
 
-The system is deployed as a collection of Kubernetes resources managed through a Helm chart. The deployment consists of 7 Deployments (dual-version app and model-service for canary testing, plus single-instance monitoring services), each exposed through ClusterIP Services. Configuration is externalized through ConfigMaps containing application environment variables, Prometheus scrape targets, Grafana datasource definitions, dashboard JSON files, and AlertManager routing rules. Persistent storage is implemented via an NFS-backed PersistentVolume (1Gi) mounted from the controller node at `/srv/nfs/model`, accessible to all model-service pods through a ReadWriteMany PersistentVolumeClaim. Istio traffic management is configured through Gateway (external entry point), VirtualServices (routing logic with cookie-based canary), and DestinationRules (subset definitions and consistent hashing). External access is provided through both Istio IngressGateway (192.168.56.91 for application) and Nginx Ingress (192.168.56.90 for monitoring dashboards), each assigned LoadBalancer IPs from MetalLB's address pool.
+The system is deployed as a collection of Kubernetes resources managed through a Helm chart. The deployment consists of 9 Deployments (dual-version app and model-service for canary testing, one for envoy and redis for rate-limiting, plus single-instance monitoring services), each exposed through ClusterIP Services. Configuration is externalized through ConfigMaps containing application environment variables, Prometheus scrape targets, Grafana datasource definitions, dashboard JSON files, AlertManager routing rules and rate-limiting paths and units. Persistent storage is implemented via an NFS-backed PersistentVolume (1Gi) mounted from the controller node at `/srv/nfs/model`, accessible to all model-service pods through a ReadWriteMany PersistentVolumeClaim. Istio traffic management is configured through Gateway (external entry point), VirtualServices (routing logic with cookie-based canary), and DestinationRules (subset definitions and consistent hashing). External access is provided through both Istio IngressGateway (192.168.56.91 for application) and Nginx Ingress (192.168.56.90 for monitoring dashboards), each assigned LoadBalancer IPs from MetalLB's address pool.
 
 ### Complete Resource Map
 
@@ -156,6 +163,7 @@ The system is deployed as a collection of Kubernetes resources managed through a
 │  │ -grafana-datasources    │         │        ▼                │             │
 │  │ -grafana-dashboards     │         │ PVC: model-pvc          │             │
 │  │ -alertmanager-config    │         │   (ReadWriteMany)       │             │
+│  │ -ratelimit              │         │                         │             │
 │  └─────────────────────────┘         └─────────────────────────┘             │
 │                                                                              │
 │  ISTIO RESOURCES                                                             │
@@ -176,9 +184,9 @@ The system is deployed as a collection of Kubernetes resources managed through a
 
 | Type | Count | Names |
 |------|-------|-------|
-| Deployments | 7 | app (v1/v2), model (v1/v2), prometheus, grafana, alertmanager |
-| Services | 5 | frontend, model, prometheus, grafana, alertmanager |
-| ConfigMaps | 5 | app-config, prometheus-config, grafana-datasources, grafana-dashboards, alertmanager-config |
+| Deployments | 9 | app (v1/v2), model (v1/v2), redis, envoy proxy, prometheus, grafana, alertmanager |
+| Services | 7 | frontend, model, ratelimit, redis, prometheus, grafana, alertmanager |
+| ConfigMaps | 6 | app-config, prometheus-config, grafana-datasources, grafana-dashboards, alertmanager-config, ratelimit |
 | Secrets | 1 | app secrets |
 | PersistentVolume | 1 | NFS-backed model storage |
 | PersistentVolumeClaim | 1 | model-pvc |
@@ -215,7 +223,23 @@ The system is deployed as a collection of Kubernetes resources managed through a
     │  - Protocol: HTTP                         │
     └─────────────────────┬─────────────────────┘
                           │
-    Step 3: VirtualService Routing
+    Step 3: Global Rate Limiting
+    ══════════════════════════════
+                          ▼
+    ┌───────────────────────────────────────────┐
+    │  ENVOY RATE LIMIT FILTER                  │
+    │  - Calls ratelimit service via gRPC       │
+    └─────────────────────┬─────────────────────┘
+                          │  
+                          ▼
+    ┌───────────────────────────────────────────┐
+    │  RATELIMIT SERVICE                        │
+    │  - Decides ALLOW / OVER_LIMIT             │
+    │  - calls REDIS to check limits            │
+    └─────────────────────┬─────────────────────┘
+                          │
+                          ▼
+    Step 4: VirtualService Routing
     ═══════════════════════════════
                           ▼
     ┌───────────────────────────────────────────┐
@@ -233,7 +257,7 @@ The system is deployed as a collection of Kubernetes resources managed through a
     │    (Cookie Max-Age: 3600s / 1 hour)       │
     └─────────────────────┬─────────────────────┘
                           │
-    Step 4: Subset Selection
+    Step 5: Subset Selection
     ════════════════════════
                           ▼
     ┌───────────────────────────────────────────┐
@@ -248,7 +272,7 @@ The system is deployed as a collection of Kubernetes resources managed through a
     │    (ensures same pod within subset)       │
     └─────────────────────┬─────────────────────┘
                           │
-    Step 5: App Processing│
+    Step 6: App Processing│
     ══════════════════════│
                           ▼
     ┌───────────────────────────────────────────┐
@@ -257,7 +281,7 @@ The system is deployed as a collection of Kubernetes resources managed through a
     │  - Calls model-service for prediction     │
     └─────────────────────┬─────────────────────┘
                           │
-    Step 6: Model Routing │ ◄── VERSION CONSISTENCY
+    Step 7: Model Routing │ ◄── VERSION CONSISTENCY
     ══════════════════════│
                           ▼
     ┌───────────────────────────────────────────┐
@@ -269,7 +293,7 @@ The system is deployed as a collection of Kubernetes resources managed through a
     │    → Route to model-service v1            │
     └─────────────────────┬─────────────────────┘
                           │
-    Step 7: Prediction    │
+    Step 8: Prediction    │
     ══════════════════════│
                           ▼
     ┌───────────────────────────────────────────┐
@@ -284,10 +308,11 @@ The system is deployed as a collection of Kubernetes resources managed through a
 | Step | Component | Decision |
 |------|-----------|----------|
 | 1 | **IngressGateway** | Accepts external traffic on port 80 |
-| 2 | **Gateway** | Matches host `*` and routes to VirtualService |
-| 3 | **VirtualService** | **Cookie-based routing**: If `exp_canary` cookie exists, route to that version (100%). Otherwise **90/10 split** and set cookie |
-| 4 | **DestinationRule** | Defines subsets (v1/v2) and uses **consistentHash on cookie** for same-pod routing within subset |
-| 5 | **Model VirtualService** | **Version consistency** - v1 app → v1 model, v2 app → v2 model |
+| 2 | **EnvoyFilter: RateLimit** | Rate limit check before routing|
+| 3 | **Gateway** | Matches host `*` and routes to VirtualService |
+| 4 | **VirtualService** | **Cookie-based routing**: If `exp_canary` cookie exists, route to that version (100%). Otherwise **90/10 split** and set cookie |
+| 5 | **DestinationRule** | Defines subsets (v1/v2) and uses **consistentHash on cookie** for same-pod routing within subset |
+| 6 | **Model VirtualService** | **Version consistency** - v1 app → v1 model, v2 app → v2 model |
 
 ---
 
@@ -357,6 +382,7 @@ http:
 - **First visit**: User gets randomly assigned to v1 (90%) or v2 (10%) and receives `exp_canary` cookie (1 hour TTL)
 - **Subsequent visits**: Cookie ensures user always sees the same version
 - **No header needed**: Unlike x-user header approach, this works automatically with standard browser cookies
+- **Testing with cURL**: have to pass cookies file explicitly.
 
 ### DestinationRule Load Balancing
 
@@ -590,8 +616,10 @@ Rate limiting is implemented at the Istio IngressGateway to prevent service abus
 │    │                                                 │                      │
 │    │  IF rate limit exceeded:                        │                      │
 │    │    → Return HTTP 429 (Too Many Requests)        │                      │
+│    │  ELSE IF rate limit service down:               │                      │
+│    │    → Deny Requests.                             │                      │
 │    │  ELSE:                                          │                      │
-│    │    → Forward to backend pods                    │                      │
+│    │    → Regular routing rules.                     │                      │
 │    └─────────────────────────────────────────────────┘                      │
 │                                                                             │
 │  Implementation:                                                            │
