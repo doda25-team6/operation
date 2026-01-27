@@ -629,7 +629,6 @@ kubectl get gateway -n default
 
 ### Step 4: Access Application via Istio
 - **Istio Gateway**: http://192.168.56.91/sms/
-- **Ingress**: http://192.168.56.90/sms/
 
 #### Port Forwarding for Istio Gateway
 ```bash
