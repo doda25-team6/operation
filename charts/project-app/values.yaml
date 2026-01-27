@@ -58,6 +58,7 @@ prometheus:
   retention: "1d"
   scrapeInterval: "30s"
   evaluationInterval: "30s"
+  accessMode: ReadWriteOnce
   persistence:
     enabled: false
     size: "1Gi"

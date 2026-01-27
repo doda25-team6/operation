@@ -42,11 +42,6 @@ spec:
           mountPath: /var/lib/grafana/dashboards/app
         - name: dashboards-experimentation
           mountPath: /var/lib/grafana/dashboards/experiment
-        {{- if .Values.grafana.persistence.enabled }}
-        # Persistent storage for user changes
-        - name: storage
-          mountPath: /var/lib/grafana
-        {{- end }}
         readinessProbe:
           httpGet:
             path: /api/health
@@ -72,11 +67,6 @@ spec:
       - name: dashboards-experimentation
         configMap:
           name: {{ include "project-app.fullname" . }}-grafana-dashboards-experimentation
-      {{- if .Values.grafana.persistence.enabled }}
-      - name: storage
-        persistentVolumeClaim:
-          claimName: {{ include "project-app.fullname" . }}-grafana
-      {{- end }}
 ---
 # Service to expose Grafana UI
 apiVersion: v1
