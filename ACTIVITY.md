@@ -671,6 +671,14 @@ https://github.com/doda25-team6/operation/pull/63
 - Changed alert rule from 2m to 1m to save time during demo
 - Updated README with info about the new ingresses, the new dashboard in CE and code to test alert manager
 
+https://github.com/doda25-team6/operation/pull/67
+
+Additions/Changes to the deployment document:
+
+- updated monitoring stack section to have mermaid charts
+- added explanatory text in deployment architecture and kubernetes resources sections
+- updated rate limiting diagram and access information section
+
 <br>
 </details>
 
