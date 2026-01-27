@@ -7,7 +7,7 @@ This repository contains the operational setup for the SMS Spam Detection system
 - **[app](https://github.com/doda25-team6/app)** - Spring Boot frontend and API gateway
 - **[model-service](https://github.com/doda25-team6/model-service)** - Flask ML backend with scikit-learn
 - **[lib-version](https://github.com/doda25-team6/lib-version)** - Version-aware Maven library
-- **[operation](https://github.com/doda25-team6/operation)** - Docker Compose orchestration (this repository)
+- **[operation](https://github.com/doda25-team6/operation)** - Docker Compose orchestration, Kubernetes Provisioning, Monitoring, Service Mesh (this repository)
 
 ## Repository Links (Tag: a1)
 - **[app](https://github.com/doda25-team6/app/tree/a1)**
