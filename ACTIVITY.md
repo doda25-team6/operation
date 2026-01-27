@@ -710,6 +710,14 @@ https://github.com/doda25-team6/operation/pull/65
 - Used env variables for model urls
 - Used the current final images rather than build on dockerfiles
 - Archived old docker-compose as .dev
+
+**A4:**
+
+[fix/readme](https://github.com/doda25-team6/operation/pull/68)
+
+- Fixed a tiny part on readme
+- Updated deployment file
+
 <br>
 </details>
 
